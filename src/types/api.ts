@@ -117,3 +117,24 @@ export interface ProfileEnvelope<T> {
   message: string;
   item: T;
 }
+
+export type TuitionApplicationMode = "home" | "online" | "other";
+export type TuitionApplicationStatus = "pending" | "reviewed" | "approved" | "rejected";
+
+export interface TuitionApplication {
+  _id: string;
+  userId: string;
+  fullName: string;
+  mobileNumber: string;
+  email: string;
+  tuitionMode: TuitionApplicationMode;
+  resumeUrl: string;
+  resumeOriginalName: string;
+  fullAddress: string;
+  area: string;
+  city: string;
+  status: TuitionApplicationStatus;
+  adminNote?: string;
+  createdAt: string;
+  updatedAt: string;
+}

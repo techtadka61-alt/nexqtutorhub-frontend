@@ -5,6 +5,7 @@ import { Card, CardBody } from "@/components/ui/Card";
 import { CtaSection } from "@/components/marketing/CtaSection";
 import { FaqSection, TUTOR_FAQS } from "@/components/marketing/FaqSection";
 import { WhyChooseUs } from "@/components/marketing/WhyChooseUs";
+import { TuitionApplyPanel } from "@/components/tutors/TuitionApplySection";
 
 export const metadata: Metadata = {
   title: "For Tutors — Become a Tutor",
@@ -59,6 +60,13 @@ const STEPS = [
   },
 ];
 
+const APPLY_STEPS = [
+  "Register as a tutor",
+  "Verify your email from the link we send you",
+  "Sign in — you'll land back on this page",
+  "Fill the form, upload your resume and submit",
+];
+
 export default function ForTutorsPage() {
   return (
     <>
@@ -77,8 +85,8 @@ export default function ForTutorsPage() {
               prefer. NexTutorHub matches you with nearby students automatically.
             </p>
             <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-              <Button href="/signup/tutor" size="lg" variant="secondary">
-                Create tutor profile
+              <Button href="#apply" size="lg" variant="secondary">
+                Apply for tuition
               </Button>
               <Button href="#how-it-works" size="lg" variant="outline-inverse">
                 See how it works
@@ -96,6 +104,37 @@ export default function ForTutorsPage() {
                 <p className="mt-1 text-xs leading-relaxed text-white/60">{b.description}</p>
               </div>
             ))}
+          </div>
+        </Container>
+      </section>
+
+      <section id="apply" className="scroll-mt-24 bg-surface py-16 sm:py-20">
+        <Container className="grid gap-10 lg:grid-cols-[1fr_1.2fr] lg:items-start lg:gap-16">
+          <div>
+            <span className="text-sm font-semibold uppercase tracking-wide text-brand-secondary">
+              Apply for tuition
+            </span>
+            <h2 className="mt-3 font-display text-3xl font-bold text-brand-primary">
+              Start teaching with NexTutorHub
+            </h2>
+            <p className="mt-4 text-text-secondary">
+              Tell us how you want to teach and share your resume. Our team reviews every application
+              before tutors are shown to students.
+            </p>
+            <ol className="mt-8 flex flex-col gap-4">
+              {APPLY_STEPS.map((step, index) => (
+                <li key={step} className="flex items-center gap-3 text-sm text-text-primary">
+                  <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-brand-secondary-light text-sm font-bold text-brand-primary">
+                    {index + 1}
+                  </span>
+                  {step}
+                </li>
+              ))}
+            </ol>
+          </div>
+
+          <div className="rounded-3xl border border-border bg-bg p-6 shadow-card sm:p-8">
+            <TuitionApplyPanel />
           </div>
         </Container>
       </section>

@@ -4,6 +4,8 @@ import { cn } from "@/lib/cn";
 
 export interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
   label?: string;
+  /** Show the label text as the placeholder instead of above the field (label stays for screen readers). */
+  labelAsPlaceholder?: boolean;
   error?: string;
   hint?: string;
   leftIcon?: ReactNode;
@@ -11,7 +13,7 @@ export interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
 }
 
 export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
-  { label, error, hint, leftIcon, className, containerClassName, id, type, ...rest },
+  { label, labelAsPlaceholder, error, hint, leftIcon, className, containerClassName, id, type, placeholder, ...rest },
   ref,
 ) {
   const generatedId = useId();
@@ -23,7 +25,10 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
   return (
     <div className={cn("flex flex-col gap-1.5", containerClassName)}>
       {label && (
-        <label htmlFor={inputId} className="text-sm font-medium text-text-primary">
+        <label
+          htmlFor={inputId}
+          className={cn("text-sm font-medium text-text-primary", labelAsPlaceholder && "sr-only")}
+        >
           {label}
         </label>
       )}
@@ -45,6 +50,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
             className,
           )}
           aria-invalid={!!error}
+          placeholder={labelAsPlaceholder ? label : placeholder}
           {...rest}
         />
         {isPassword && (

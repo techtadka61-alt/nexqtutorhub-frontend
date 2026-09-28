@@ -8,6 +8,7 @@ import { GoogleAuthButton } from "@/components/auth/GoogleAuthButton";
 import { OrDivider } from "@/components/auth/OrDivider";
 import { JoinAsButtons } from "@/components/auth/JoinAsButtons";
 import { useAuth, roleHomePath } from "@/context/auth-context";
+import { UserRole } from "@/types/api";
 import { ApiError } from "@/lib/api-client";
 
 export function LoginForm() {
@@ -24,7 +25,8 @@ export function LoginForm() {
     setIsSubmitting(true);
     try {
       const user = await login({ email, password });
-      router.push(roleHomePath(user.role));
+      // Tutors go straight to the apply form on the For Tutors page; everyone else to their account.
+      router.push(user.role === UserRole.TUTOR ? "/for-tutors#apply" : roleHomePath(user.role));
     } catch (err) {
       if (err instanceof ApiError) {
         if (err.statusCode === 403 && /verify/i.test(err.message)) {

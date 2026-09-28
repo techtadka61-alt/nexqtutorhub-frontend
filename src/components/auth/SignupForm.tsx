@@ -122,7 +122,7 @@ export function SignupForm({ role }: { role: SignupRole }) {
           <Input
             label="Full name"
             autoComplete="name"
-            placeholder="Aarav Shukla"
+            labelAsPlaceholder
             required
             minLength={2}
             value={form.fullName}
@@ -133,7 +133,7 @@ export function SignupForm({ role }: { role: SignupRole }) {
             label="Mobile number"
             type="tel"
             autoComplete="tel"
-            placeholder="+91 98765 43210"
+            labelAsPlaceholder
             required
             value={form.mobileNumber}
             onChange={(e) => update("mobileNumber", e.target.value)}
@@ -143,7 +143,7 @@ export function SignupForm({ role }: { role: SignupRole }) {
             label="Email address"
             type="email"
             autoComplete="email"
-            placeholder="you@example.com"
+            labelAsPlaceholder
             required
             value={form.email}
             onChange={(e) => update("email", e.target.value)}
@@ -152,9 +152,10 @@ export function SignupForm({ role }: { role: SignupRole }) {
 
           <Input
             label="Password"
+            hint="At least 8 characters, with letters & numbers"
             type="password"
             autoComplete="new-password"
-            placeholder="8+ characters, letters & numbers"
+            labelAsPlaceholder
             required
             minLength={8}
             value={form.password}
@@ -165,7 +166,7 @@ export function SignupForm({ role }: { role: SignupRole }) {
             label="Confirm password"
             type="password"
             autoComplete="new-password"
-            placeholder="Re-enter your password"
+            labelAsPlaceholder
             required
             value={form.confirmPassword}
             onChange={(e) => update("confirmPassword", e.target.value)}

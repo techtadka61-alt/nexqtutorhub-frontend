@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import type { ReactNode } from "react";
+import type { CSSProperties, ReactNode } from "react";
 import illustration from "@/assets/images/login-illustration.png";
 import { cn } from "@/lib/cn";
 
@@ -48,8 +48,9 @@ export function AuthShell({ children }: { children: ReactNode }) {
 /** Plain, image-free layout for the longer signup forms. */
 export function SignupShell({ children }: { children: ReactNode }) {
   return (
-    <div className="bg-gradient-to-br from-brand-secondary-light/70 via-bg to-surface px-4 py-10 sm:py-14">
-      <div className="mx-auto w-full max-w-[680px] rounded-3xl border border-border/70 bg-surface px-6 py-8 shadow-lifted sm:px-10 sm:py-10">
+    <div className="relative overflow-hidden bg-gradient-to-br from-brand-secondary-light/70 via-bg to-surface px-4 py-10 sm:py-14">
+      <SignupBackdrop />
+      <div className="relative z-10 mx-auto w-full max-w-[680px] rounded-3xl border border-border/70 bg-surface px-6 py-8 shadow-lifted sm:px-10 sm:py-10">
         {children}
       </div>
     </div>
@@ -90,23 +91,23 @@ function Backdrop() {
           opacity="0.7"
         />
       </svg>
-      <Pin className="top-[42%] h-9 w-9" left={`calc(${ILLUSTRATION_WIDTH} * 0.98)`} />
-      <Pin className="top-[14%] h-7 w-7 opacity-80" left={`calc(${ILLUSTRATION_WIDTH} * 1.18)`} />
+      <Pin className="top-[42%] h-9 w-9" style={{ left: `calc(${ILLUSTRATION_WIDTH} * 0.98)` }} />
+      <Pin className="top-[14%] h-7 w-7 opacity-80" style={{ left: `calc(${ILLUSTRATION_WIDTH} * 1.18)` }} />
 
       <Chip
-            className="top-[26%]"
-            left={`calc(${ILLUSTRATION_WIDTH} * 0.9)`}
-            icon={<ShieldIcon />}
-            title="Verified tutors"
-            subtitle="ID & qualification checked"
-          />
-          <Chip
-            className="top-[62%]"
-            left={`calc(${ILLUSTRATION_WIDTH} * 1.02)`}
-            icon={<PinIcon />}
-            title="Tutors near you"
-            subtitle="Home & online tuition"
-          />
+        className="top-[26%]"
+        style={{ left: `calc(${ILLUSTRATION_WIDTH} * 0.9)` }}
+        icon={<ShieldIcon />}
+        title="Verified tutors"
+        subtitle="ID & qualification checked"
+      />
+      <Chip
+        className="top-[62%]"
+        style={{ left: `calc(${ILLUSTRATION_WIDTH} * 1.02)` }}
+        icon={<PinIcon />}
+        title="Tutors near you"
+        subtitle="Home & online tuition"
+      />
 
       <svg className="absolute inset-x-0 bottom-0 h-[20vh] w-full" viewBox="0 0 1440 200" preserveAspectRatio="none">
         <defs>
@@ -123,9 +124,183 @@ function Backdrop() {
   );
 }
 
-function Pin({ className, left }: { className: string; left: string }) {
+/**
+ * Canva-style decoration for the image-free signup pages: soft blobs, dot grids, a dashed route
+ * with map pins, floating study icons and trust chips. Side pieces only show where there is room
+ * beside the centred 680px card.
+ */
+function SignupBackdrop() {
   return (
-    <svg className={cn("absolute text-brand-primary drop-shadow", className)} style={{ left }} viewBox="0 0 24 24">
+    <div aria-hidden className="pointer-events-none absolute inset-0">
+      {/* Soft blobs, visible at every size and sitting behind the card */}
+      <svg className="absolute -top-28 -left-28 w-[460px] text-brand-secondary-light" viewBox="0 0 400 400">
+        <path
+          fill="currentColor"
+          d="M318 64c44 38 64 104 44 160s-78 98-140 112-128-2-164-50S18 164 52 106 150 18 212 16s62 10 106 48Z"
+        />
+      </svg>
+      <svg className="absolute -right-32 -bottom-32 w-[520px] text-brand-accent/35" viewBox="0 0 400 400">
+        <path
+          fill="currentColor"
+          d="M330 90c40 46 52 118 22 172s-104 90-170 88S58 312 30 256s-20-128 20-176S150 8 214 14s76 30 116 76Z"
+        />
+      </svg>
+      <div className="absolute top-[12%] right-[6%] hidden h-44 w-44 rounded-full border-2 border-dashed border-brand-accent md:block" />
+
+      <DotGrid className="top-[6%] right-[16%] hidden text-brand-secondary/35 md:block" />
+      <DotGrid className="bottom-[16%] left-[5%] hidden text-brand-secondary/35 md:block" />
+
+      {/* Dashed "route" between two pins down the left side */}
+      <svg
+        className="absolute top-[22%] left-[2%] hidden h-[56%] w-[16vw] text-brand-secondary xl:block"
+        viewBox="0 0 200 500"
+        preserveAspectRatio="none"
+        fill="none"
+      >
+        <path
+          d="M40 490C120 430 20 350 90 280s110-60 70-150S60 40 120 8"
+          stroke="currentColor"
+          strokeWidth="2.5"
+          strokeDasharray="8 10"
+          strokeLinecap="round"
+          vectorEffect="non-scaling-stroke"
+          opacity="0.6"
+        />
+      </svg>
+      <Pin className="top-[19%] left-[9%] hidden h-9 w-9 xl:block" />
+      <Pin className="top-[74%] left-[3%] hidden h-7 w-7 opacity-80 xl:block" />
+
+      {/* Floating study icons */}
+      <FloatingTile className="top-[26%] left-[12%] bg-brand-primary text-white" rotate={-8}>
+        <CapIcon />
+      </FloatingTile>
+      <FloatingTile className="top-[58%] left-[8%] bg-warning text-white" rotate={10} delay={1.5}>
+        <PencilIcon />
+      </FloatingTile>
+      <FloatingTile className="top-[22%] right-[9%] bg-brand-secondary text-white" rotate={8} delay={0.8}>
+        <BookIcon />
+      </FloatingTile>
+      <FloatingTile className="top-[62%] right-[12%] bg-surface text-warning" rotate={-6} delay={2.2}>
+        <BulbIcon />
+      </FloatingTile>
+
+      <Sparkle className="top-[14%] left-[22%] h-5 w-5 text-warning" />
+      <Sparkle className="top-[48%] right-[5%] h-4 w-4 text-brand-secondary" />
+      <Sparkle className="top-[84%] right-[22%] h-6 w-6 text-brand-accent" />
+      <Sparkle className="top-[40%] left-[4%] h-4 w-4 text-brand-accent" />
+
+      <Chip
+        className="top-[42%] hidden 2xl:flex"
+        style={{ left: "4%" }}
+        icon={<ShieldIcon />}
+        title="Verified tutors"
+        subtitle="ID & qualification checked"
+      />
+      <Chip
+        className="top-[42%] hidden 2xl:flex"
+        style={{ right: "4%" }}
+        icon={<PinIcon />}
+        title="Home & online"
+        subtitle="Teach or learn your way"
+      />
+
+      <svg className="absolute inset-x-0 bottom-0 h-28 w-full" viewBox="0 0 1440 200" preserveAspectRatio="none">
+        <defs>
+          <linearGradient id="signup-wave" x1="0" x2="1" y1="0" y2="0">
+            <stop offset="0" stopColor="var(--color-brand-secondary)" stopOpacity="0.28" />
+            <stop offset="0.5" stopColor="var(--color-brand-accent)" stopOpacity="0.35" />
+            <stop offset="1" stopColor="var(--color-brand-secondary)" stopOpacity="0.2" />
+          </linearGradient>
+        </defs>
+        <path fill="url(#signup-wave)" d="M0 120C240 60 420 170 700 130s520-110 740-40V200H0Z" />
+      </svg>
+    </div>
+  );
+}
+
+function FloatingTile({
+  className,
+  rotate,
+  delay = 0,
+  children,
+}: {
+  className: string;
+  rotate: number;
+  delay?: number;
+  children: ReactNode;
+}) {
+  return (
+    <span
+      className={cn(
+        "animate-float absolute hidden h-14 w-14 items-center justify-center rounded-2xl shadow-soft lg:flex",
+        className,
+      )}
+      style={{ "--float-rotate": `${rotate}deg`, animationDelay: `${delay}s` } as CSSProperties}
+    >
+      {children}
+    </span>
+  );
+}
+
+function DotGrid({ className }: { className: string }) {
+  return (
+    <svg className={cn("absolute h-28 w-40", className)} viewBox="0 0 160 112">
+      {Array.from({ length: 6 }, (_, row) =>
+        Array.from({ length: 8 }, (_, col) => (
+          <circle key={`${row}-${col}`} cx={10 + col * 20} cy={10 + row * 18} r="2.5" fill="currentColor" />
+        )),
+      )}
+    </svg>
+  );
+}
+
+function Sparkle({ className }: { className: string }) {
+  return (
+    <svg className={cn("absolute hidden md:block", className)} viewBox="0 0 24 24" fill="currentColor">
+      <path d="M12 1.5c.6 5.6 4.9 9.9 10.5 10.5-5.6.6-9.9 4.9-10.5 10.5C11.4 16.9 7.1 12.6 1.5 12 7.1 11.4 11.4 7.1 12 1.5Z" />
+    </svg>
+  );
+}
+
+function CapIcon() {
+  return (
+    <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      <path d="M12 3l10 5-10 5L2 8l10-5Z" strokeLinejoin="round" />
+      <path d="M6 10.5V16c0 1.5 2.7 3 6 3s6-1.5 6-3v-5.5" />
+    </svg>
+  );
+}
+
+function BookIcon() {
+  return (
+    <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      <path d="M4 5.5A2.5 2.5 0 016.5 3H20v15H6.5A2.5 2.5 0 004 20.5v-15Z" strokeLinejoin="round" />
+      <path d="M4 20.5A2.5 2.5 0 016.5 18H20v3H6.5A2.5 2.5 0 014 20.5Z" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+function PencilIcon() {
+  return (
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      <path d="M16.5 3.5l4 4L8 20H4v-4L16.5 3.5Z" strokeLinejoin="round" />
+      <path d="M14 6l4 4" />
+    </svg>
+  );
+}
+
+function BulbIcon() {
+  return (
+    <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      <path d="M9 18h6M10 21h4" strokeLinecap="round" />
+      <path d="M12 3a6 6 0 00-3.5 10.9c.6.5 1 1.2 1 2V16h5v-.1c0-.8.4-1.5 1-2A6 6 0 0012 3Z" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+function Pin({ className, style }: { className: string; style?: CSSProperties }) {
+  return (
+    <svg className={cn("absolute text-brand-primary drop-shadow", className)} style={style} viewBox="0 0 24 24">
       <path fill="currentColor" d="M12 22s-7-6.4-7-12a7 7 0 1114 0c0 5.6-7 12-7 12Z" />
       <circle cx="12" cy="10" r="2.8" fill="white" />
     </svg>
@@ -134,13 +309,13 @@ function Pin({ className, left }: { className: string; left: string }) {
 
 function Chip({
   className,
-  left,
+  style,
   icon,
   title,
   subtitle,
 }: {
   className: string;
-  left: string;
+  style?: CSSProperties;
   icon: ReactNode;
   title: string;
   subtitle: string;
@@ -148,7 +323,7 @@ function Chip({
   return (
     <div
       className={cn("absolute flex items-center gap-3 rounded-2xl bg-surface/95 py-2.5 pr-5 pl-2.5 shadow-soft", className)}
-      style={{ left }}
+      style={style}
     >
       <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-brand-primary text-white">{icon}</span>
       <span>

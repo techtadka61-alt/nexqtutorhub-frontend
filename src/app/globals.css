@@ -100,3 +100,23 @@ html {
 ::-webkit-scrollbar-thumb:hover {
   background: var(--color-text-secondary);
 }
+
+/* Gentle bob for decorative graphics; keeps any per-element tilt set via --float-rotate */
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0) rotate(var(--float-rotate, 0deg));
+  }
+  50% {
+    transform: translateY(-10px) rotate(var(--float-rotate, 0deg));
+  }
+}
+.animate-float {
+  animation: float 6s ease-in-out infinite;
+  transform: rotate(var(--float-rotate, 0deg));
+}
+@media (prefers-reduced-motion: reduce) {
+  .animate-float {
+    animation: none;
+  }
+}

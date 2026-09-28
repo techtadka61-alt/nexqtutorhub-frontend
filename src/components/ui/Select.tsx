@@ -9,6 +9,8 @@ export interface SelectOption {
 
 export interface SelectProps extends SelectHTMLAttributes<HTMLSelectElement> {
   label?: string;
+  /** Show the label text as the empty-state option instead of above the field (label stays for screen readers). */
+  labelAsPlaceholder?: boolean;
   error?: string;
   hint?: string;
   options: SelectOption[];
@@ -17,16 +19,20 @@ export interface SelectProps extends SelectHTMLAttributes<HTMLSelectElement> {
 }
 
 export const Select = forwardRef<HTMLSelectElement, SelectProps>(function Select(
-  { label, error, hint, options, placeholder, className, containerClassName, id, ...rest },
+  { label, labelAsPlaceholder, error, hint, options, placeholder: placeholderProp, className, containerClassName, id, ...rest },
   ref,
 ) {
   const generatedId = useId();
   const selectId = id ?? generatedId;
+  const placeholder = labelAsPlaceholder ? label : placeholderProp;
 
   return (
     <div className={cn("flex flex-col gap-1.5", containerClassName)}>
       {label && (
-        <label htmlFor={selectId} className="text-sm font-medium text-text-primary">
+        <label
+          htmlFor={selectId}
+          className={cn("text-sm font-medium text-text-primary", labelAsPlaceholder && "sr-only")}
+        >
           {label}
         </label>
       )}
@@ -35,7 +41,7 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps>(function Select
           ref={ref}
           id={selectId}
           className={cn(
-            "h-13 w-full appearance-none rounded-xl border bg-surface px-4 pr-10 text-sm text-text-primary transition-colors focus-ring",
+            "h-13 w-full appearance-none rounded-xl border bg-surface px-4 pr-10 text-sm text-text-primary transition-colors focus-ring invalid:text-text-secondary/70",
             error ? "border-error" : "border-border focus:border-brand-secondary",
             className,
           )}
