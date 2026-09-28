@@ -101,6 +101,23 @@ html {
   background: var(--color-text-secondary);
 }
 
+/* Dialog entrance: slight rise + fade (used by SuccessModal) */
+@keyframes modal-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  dialog[open] {
+    animation: none !important;
+  }
+}
+
 /* Gentle bob for decorative graphics; keeps any per-element tilt set via --float-rotate */
 @keyframes float {
   0%,

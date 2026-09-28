@@ -6,6 +6,15 @@ export enum UserRole {
 
 export type TuitionMode = "home" | "online" | "both";
 
+export type WeekDay = "mon" | "tue" | "wed" | "thu" | "fri" | "sat" | "sun";
+
+/** One weekly teaching window; times are 24-hour "HH:mm". */
+export interface AvailabilitySlot {
+  days: WeekDay[];
+  from: string;
+  to: string;
+}
+
 export interface ApiEnvelope<T> {
   success: boolean;
   statusCode: number;
@@ -81,9 +90,38 @@ export interface StudentProfile {
   updatedAt?: string;
 }
 
+/** Guest-safe tutor card returned by GET /tutors/search (no contact details or exact address). */
+export interface TutorSearchResult {
+  id: string;
+  name?: string;
+  profilePhoto?: string;
+  subjects?: string[];
+  classes?: string[];
+  boards?: string[];
+  availability?: string;
+  qualification?: string;
+  experienceYears?: number;
+  rating: number;
+  distanceKm?: number;
+  area?: string;
+  city?: string;
+  teachingMode?: TuitionMode;
+  /** Monthly fee in ₹. */
+  feeRange?: number;
+  isVerified: boolean;
+}
+
 export interface GeoPoint {
   type: "Point";
   coordinates: [number, number];
+}
+
+/** One CV in a tutor's saved-resume library (GET /tutors/me/resumes). */
+export interface TutorResume {
+  _id: string;
+  url: string;
+  originalName: string;
+  uploadedAt: string;
 }
 
 export interface TutorProfile {
@@ -94,6 +132,7 @@ export interface TutorProfile {
   gender?: string;
   city?: string;
   area?: string;
+  address?: string;
   pincode?: string;
   teachingExperienceYears?: number;
   highestQualification?: string;
@@ -104,7 +143,9 @@ export interface TutorProfile {
   preferredRadiusKm?: number;
   fees?: number;
   availability?: string;
+  availabilitySlots?: AvailabilitySlot[];
   resumeUrl?: string;
+  resumes?: TutorResume[];
   verificationStatus: "pending" | "verified" | "rejected" | string;
   rating?: number;
   location?: GeoPoint;

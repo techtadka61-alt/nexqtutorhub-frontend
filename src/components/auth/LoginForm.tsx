@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
 import { GoogleAuthButton } from "@/components/auth/GoogleAuthButton";
@@ -10,9 +10,23 @@ import { JoinAsButtons } from "@/components/auth/JoinAsButtons";
 import { useAuth, roleHomePath } from "@/context/auth-context";
 import { UserRole } from "@/types/api";
 import { ApiError } from "@/lib/api-client";
+import { returnTo, safeReturnPath } from "@/lib/return-to";
+import { studentProfileApi } from "@/lib/api/profile";
+import { missingRequirement, REQUIREMENT_SETUP_PATH } from "@/lib/student-requirement";
+
+/** If the profile can't be loaded, don't block login on it — the listing page re-checks. */
+async function needsRequirement(): Promise<boolean> {
+  try {
+    const { item } = await studentProfileApi.getMine();
+    return missingRequirement(item).length > 0;
+  } catch {
+    return false;
+  }
+}
 
 export function LoginForm() {
   const router = useRouter();
+  const nextParam = safeReturnPath(useSearchParams().get("next"));
   const { login } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -25,8 +39,19 @@ export function LoginForm() {
     setIsSubmitting(true);
     try {
       const user = await login({ email, password });
-      // Tutors go straight to the apply form on the For Tutors page; everyone else to their account.
-      router.push(user.role === UserRole.TUTOR ? "/for-tutors#apply" : roleHomePath(user.role));
+      // Back to the page that sent them to login (the ?next= param, or the page remembered before they
+      // registered and verified in another tab); otherwise tutors go straight to the apply form on the
+      // For Tutors page and everyone else to their account.
+      const next = nextParam ?? returnTo.get();
+      returnTo.clear();
+      // A student who hasn't submitted their learning requirement fills it in first; saving it then takes
+      // them to their matched-tutor listing.
+      if (user.role === UserRole.STUDENT && (await needsRequirement())) {
+        router.push(REQUIREMENT_SETUP_PATH);
+        return;
+      }
+      if (next) router.push(next === "/for-tutors" && user.role === UserRole.TUTOR ? "/for-tutors#apply" : next);
+      else router.push(user.role === UserRole.TUTOR ? "/for-tutors#apply" : roleHomePath(user.role));
     } catch (err) {
       if (err instanceof ApiError) {
         if (err.statusCode === 403 && /verify/i.test(err.message)) {

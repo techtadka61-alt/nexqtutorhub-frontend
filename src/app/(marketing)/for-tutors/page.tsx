@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import { Container } from "@/components/ui/Container";
 import { Button } from "@/components/ui/Button";
 import { Card, CardBody } from "@/components/ui/Card";
@@ -6,38 +7,14 @@ import { CtaSection } from "@/components/marketing/CtaSection";
 import { FaqSection, TUTOR_FAQS } from "@/components/marketing/FaqSection";
 import { WhyChooseUs } from "@/components/marketing/WhyChooseUs";
 import { TuitionApplyPanel } from "@/components/tutors/TuitionApplySection";
+import { ProtectedRoute } from "@/components/account/ProtectedRoute";
+import tutorApplyImage from "@/assets/images/Tutor-Apply.png";
 
 export const metadata: Metadata = {
   title: "For Tutors — Become a Tutor",
   description:
     "Create your tutor profile on NexTutorHub: add your qualifications, choose home or online tuition, set your teaching area and travel radius, and get discovered by students near you.",
 };
-
-const BENEFITS = [
-  {
-    title: "Get discovered locally",
-    description:
-      "Students search by city, area and distance. Set your travel radius once and appear in every matching search nearby.",
-    icon: <PinIcon />,
-  },
-  {
-    title: "Choose your mode",
-    description:
-      "Teach at the student's home, online, or both — you decide per your comfort and availability.",
-    icon: <LaptopIcon />,
-  },
-  {
-    title: "Build a trusted profile",
-    description:
-      "Add your qualifications and experience. Verified tutors are shown as trusted, boosting response rates.",
-    icon: <BadgeIcon />,
-  },
-  {
-    title: "Set your own fees",
-    description: "You control your monthly fees and availability — no hidden commission surprises.",
-    icon: <RupeeIcon />,
-  },
-];
 
 const STEPS = [
   {
@@ -67,64 +44,35 @@ const APPLY_STEPS = [
   "Fill the form, upload your resume and submit",
 ];
 
+/** Signed-in users only: guests are sent to login and brought back here afterwards. */
 export default function ForTutorsPage() {
   return (
-    <>
-      <section className="bg-brand-primary py-16 text-white sm:py-20">
-        <Container className="grid items-center gap-10 lg:grid-cols-2">
+    <ProtectedRoute>
+      <section id="apply" className="scroll-mt-24 bg-surface py-14 sm:py-20">
+        <Container className="grid gap-12 lg:grid-cols-2 lg:items-center lg:gap-16">
           <div>
-            <span className="inline-block rounded-full bg-white/10 px-4 py-1.5 text-xs font-semibold text-brand-accent">
+            <span className="inline-block rounded-full bg-brand-secondary-light px-4 py-1.5 text-xs font-semibold text-brand-primary">
               For tutors & teachers
             </span>
-            <h1 className="mt-4 font-display text-3xl font-bold leading-tight sm:text-4xl lg:text-5xl">
-              Teach where you want. Get found by students who need exactly what you teach.
+            <h1 className="mt-4 font-display text-3xl font-bold leading-tight text-brand-primary sm:text-4xl lg:text-5xl">
+              Apply as a <span className="text-brand-secondary">Tutor</span>
             </h1>
-            <p className="mt-4 max-w-lg text-white/70">
-              Build a profile once — your subjects, classes, boards, experience and CV — and choose
-              home tuition, online tuition, or both, along with the city, area and travel radius you
-              prefer. NexTutorHub matches you with nearby students automatically.
+            <p className="mt-4 max-w-lg leading-relaxed text-text-secondary">
+              Join a growing community of educators on NexTutorHub. Share how you like to teach, upload your
+              resume, and our team will review your application before you&apos;re shown to students.
             </p>
-            <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-              <Button href="#apply" size="lg" variant="secondary">
-                Apply for tuition
-              </Button>
-              <Button href="#how-it-works" size="lg" variant="outline-inverse">
-                See how it works
-              </Button>
-            </div>
-          </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            {BENEFITS.map((b) => (
-              <div key={b.title} className="rounded-2xl border border-white/10 bg-white/5 p-5">
-                <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-brand-accent text-brand-primary">
-                  {b.icon}
-                </span>
-                <h3 className="mt-3 text-sm font-semibold text-white">{b.title}</h3>
-                <p className="mt-1 text-xs leading-relaxed text-white/60">{b.description}</p>
-              </div>
-            ))}
-          </div>
-        </Container>
-      </section>
+            <Image
+              src={tutorApplyImage}
+              alt="A tutor at her laptop applying on NexTutorHub, with subject and resume checklist cards around her"
+              sizes="(min-width: 1024px) 40vw, 80vw"
+              className="mx-auto mt-8 h-auto w-full max-w-sm mix-blend-multiply lg:mx-0 lg:max-w-md"
+            />
 
-      <section id="apply" className="scroll-mt-24 bg-surface py-16 sm:py-20">
-        <Container className="grid gap-10 lg:grid-cols-[1fr_1.2fr] lg:items-start lg:gap-16">
-          <div>
-            <span className="text-sm font-semibold uppercase tracking-wide text-brand-secondary">
-              Apply for tuition
-            </span>
-            <h2 className="mt-3 font-display text-3xl font-bold text-brand-primary">
-              Start teaching with NexTutorHub
-            </h2>
-            <p className="mt-4 text-text-secondary">
-              Tell us how you want to teach and share your resume. Our team reviews every application
-              before tutors are shown to students.
-            </p>
-            <ol className="mt-8 flex flex-col gap-4">
+            <ol className="mt-8 grid gap-3 sm:grid-cols-2">
               {APPLY_STEPS.map((step, index) => (
                 <li key={step} className="flex items-center gap-3 text-sm text-text-primary">
-                  <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-brand-secondary-light text-sm font-bold text-brand-primary">
+                  <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-brand-secondary-light text-xs font-bold text-brand-primary">
                     {index + 1}
                   </span>
                   {step}
@@ -133,9 +81,7 @@ export default function ForTutorsPage() {
             </ol>
           </div>
 
-          <div className="rounded-3xl border border-border bg-bg p-6 shadow-card sm:p-8">
-            <TuitionApplyPanel />
-          </div>
+          <TuitionApplyPanel />
         </Container>
       </section>
 
@@ -231,7 +177,7 @@ export default function ForTutorsPage() {
       <WhyChooseUs />
       <CtaSection />
       <FaqSection items={TUTOR_FAQS} subtitle="Everything you need to know before you start teaching." />
-    </>
+    </ProtectedRoute>
   );
 }
 
@@ -242,40 +188,5 @@ function CheckDot() {
         <path d="M5 13l4 4L19 7" strokeLinecap="round" strokeLinejoin="round" />
       </svg>
     </span>
-  );
-}
-
-function PinIcon() {
-  return (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-      <path d="M12 21s-7-6.5-7-11a7 7 0 1114 0c0 4.5-7 11-7 11Z" />
-      <circle cx="12" cy="10" r="2.5" />
-    </svg>
-  );
-}
-
-function LaptopIcon() {
-  return (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-      <rect x="4" y="5" width="16" height="10" rx="1.5" />
-      <path d="M2 19h20" strokeLinecap="round" />
-    </svg>
-  );
-}
-
-function BadgeIcon() {
-  return (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-      <path d="M12 3l7 3v6c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6l7-3Z" strokeLinejoin="round" />
-      <path d="M9 12l2 2 4-4" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
-  );
-}
-
-function RupeeIcon() {
-  return (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-      <path d="M6 4h12M6 9h12M6 4c4 0 6 2 6 5s-2 5-6 5h-1l7 6" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
   );
 }

@@ -10,7 +10,10 @@ import { studentProfileApi, type UpdateStudentProfilePayload } from "@/lib/api/p
 import { BOARD_OPTIONS, CLASS_OPTIONS, SUBJECT_OPTIONS, TUITION_MODE_OPTIONS } from "@/lib/constants";
 import { ApiError } from "@/lib/api-client";
 import type { StudentProfile } from "@/types/api";
-import { useAuth } from "@/context/auth-context";
+import { useRouter, useSearchParams } from "next/navigation";
+import { missingRequirement } from "@/lib/student-requirement";
+import { roleHomePath, useAuth } from "@/context/auth-context";
+import { SuccessModal } from "@/components/ui/SuccessModal";
 
 type FormState = UpdateStudentProfilePayload;
 
@@ -35,16 +38,25 @@ function toFormState(profile: StudentProfile | null, fallbackName?: string): For
 
 export function StudentProfileForm() {
   const { user } = useAuth();
+  const router = useRouter();
   const [form, setForm] = useState<FormState>(toFormState(null));
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
+  // Guided first run (sent here after login because the requirement was missing): required fields are
+  // enforced, and saving leads to the matched-tutor listing instead of the dashboard.
+  const setupMode = useSearchParams().get("setup") === "requirement";
+  const [requirementWasMissing, setRequirementWasMissing] = useState(false);
+  const goToListing = setupMode || requirementWasMissing;
 
   useEffect(() => {
     studentProfileApi
       .getMine()
-      .then((res) => setForm(toFormState(res.item)))
+      .then((res) => {
+        setForm(toFormState(res.item));
+        setRequirementWasMissing(missingRequirement(res.item).length > 0);
+      })
       .catch((err) => setError(err instanceof ApiError ? err.message : "Failed to load your profile."))
       .finally(() => setIsLoading(false));
   }, []);
@@ -57,6 +69,9 @@ export function StudentProfileForm() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
+    const missing = missingRequirement(form);
+    if (goToListing && missing.length)
+      return setError(`Please add your ${missing.join(", ")} so we can match you with the right tutors.`);
     setIsSaving(true);
     try {
       const res = await studentProfileApi.updateMine(form);
@@ -75,14 +90,35 @@ export function StudentProfileForm() {
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-6">
-      {error && (
-        <div className="rounded-xl border border-error/30 bg-error/5 px-4 py-3 text-sm text-error">{error}</div>
-      )}
-      {success && (
-        <div className="rounded-xl border border-success/30 bg-success/5 px-4 py-3 text-sm text-success">
-          Your profile has been updated.
+      {setupMode && (
+        <div className="rounded-2xl border border-brand-secondary/30 bg-brand-secondary-light/40 px-5 py-4">
+          <h2 className="font-display text-lg font-bold text-brand-primary">Tell us what you need</h2>
+          <p className="mt-1 text-sm text-text-secondary">
+            Add your class, subjects, preferred tuition mode and city. We&apos;ll use them to show tutors that match
+            you — you can change them any time.
+          </p>
         </div>
       )}
+      {error && (
+        <div role="alert" className="rounded-xl border border-error/30 bg-error/5 px-4 py-3 text-sm text-error">
+          {error}
+        </div>
+      )}
+      <SuccessModal
+        open={success}
+        title={goToListing ? "Requirement submitted" : "Profile updated"}
+        description={
+          goToListing
+            ? "Great! We've found tutors that match your requirement."
+            : "Your changes have been saved successfully."
+        }
+        confirmLabel={goToListing ? "See matched tutors" : "Go to dashboard"}
+        onConfirm={() => {
+          setSuccess(false);
+          if (goToListing) router.push("/find-tutors");
+          else if (user) router.push(roleHomePath(user.role));
+        }}
+      />
 
       <Card>
         <CardHeader>
@@ -114,7 +150,12 @@ export function StudentProfileForm() {
           <h2 className="text-base font-semibold text-text-primary">Location</h2>
         </CardHeader>
         <CardBody className="grid gap-5 sm:grid-cols-3">
-          <Input label="City" value={form.city} onChange={(e) => update("city", e.target.value)} />
+          <Input
+            label="City"
+            hint={goToListing && form.preferredTuitionMode !== "online" ? "Required for home tuition" : undefined}
+            value={form.city}
+            onChange={(e) => update("city", e.target.value)}
+          />
           <Input label="Area / locality" value={form.area} onChange={(e) => update("area", e.target.value)} />
           <Input label="Pincode" value={form.pincode} onChange={(e) => update("pincode", e.target.value)} />
         </CardBody>
@@ -128,6 +169,7 @@ export function StudentProfileForm() {
           <div className="grid gap-5 sm:grid-cols-3">
             <Select
               label="Class"
+              hint={goToListing ? "Required" : undefined}
               placeholder="Select class"
               options={CLASS_OPTIONS.map((c) => ({ value: c, label: c }))}
               value={form.studentClass}
@@ -142,6 +184,7 @@ export function StudentProfileForm() {
             />
             <Select
               label="Preferred tuition mode"
+              hint={goToListing ? "Required" : undefined}
               placeholder="Select mode"
               options={TUITION_MODE_OPTIONS}
               value={form.preferredTuitionMode ?? ""}
@@ -151,6 +194,7 @@ export function StudentProfileForm() {
 
           <MultiSelectChips
             label="Subjects you need help with"
+            hint={goToListing ? "Required — pick at least one" : undefined}
             options={SUBJECT_OPTIONS}
             value={form.subjects ?? []}
             onChange={(v) => update("subjects", v)}
@@ -201,7 +245,7 @@ export function StudentProfileForm() {
 
       <div className="flex justify-end">
         <Button type="submit" size="lg" isLoading={isSaving}>
-          Save changes
+          {goToListing ? "Submit requirement" : "Save changes"}
         </Button>
       </div>
     </form>

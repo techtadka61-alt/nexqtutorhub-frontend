@@ -54,7 +54,7 @@ export default function AboutPage() {
               while exact addresses stay private until both sides are ready to connect.
             </p>
             <div className="mt-8 flex gap-3">
-              <Button href="/signup/student">Find a tutor</Button>
+              <Button href="/find-tutors">Find a tutor</Button>
               <Button href="/for-tutors" variant="outline">
                 Become a tutor
               </Button>

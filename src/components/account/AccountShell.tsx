@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Logo } from "@/components/ui/Logo";
+import { UserMenu } from "@/components/layout/UserMenu";
 import { useAuth } from "@/context/auth-context";
 import { UserRole } from "@/types/api";
 import { cn } from "@/lib/cn";
@@ -18,6 +19,7 @@ function navFor(role: UserRole): NavItem[] {
   const base = role === UserRole.STUDENT ? "/account/student" : "/account/tutor";
   return [
     { href: base, label: "Overview", icon: <HomeIcon /> },
+    ...(role === UserRole.STUDENT ? [{ href: "/find-tutors", label: "Find tutors", icon: <SearchIcon /> }] : []),
     { href: "/account/profile", label: "My profile", icon: <UserIcon /> },
   ];
 }
@@ -66,7 +68,7 @@ export function AccountShell({ children }: { children: React.ReactNode }) {
         <div className="absolute bottom-0 w-full border-t border-border p-4">
           <button
             onClick={() => logout()}
-            className="flex w-full items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium text-error transition-colors hover:bg-error/10"
+            className="flex w-full cursor-pointer items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium text-error transition-colors hover:bg-error/10"
           >
             <LogoutIcon />
             Sign out
@@ -104,7 +106,7 @@ export function AccountShell({ children }: { children: React.ReactNode }) {
                 Email not verified
               </span>
             )}
-            <ProfileAvatar name={user?.fullName} />
+            <UserMenu />
           </div>
         </header>
 
@@ -114,19 +116,19 @@ export function AccountShell({ children }: { children: React.ReactNode }) {
   );
 }
 
-function ProfileAvatar({ name }: { name?: string }) {
-  const initial = name?.trim()?.[0]?.toUpperCase() ?? "U";
-  return (
-    <span className="flex h-10 w-10 items-center justify-center rounded-full bg-brand-secondary-light text-sm font-bold text-brand-primary">
-      {initial}
-    </span>
-  );
-}
-
 function HomeIcon() {
   return (
     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
       <path d="M4 11l8-7 8 7v8a2 2 0 01-2 2h-3v-6H9v6H6a2 2 0 01-2-2v-8Z" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+function SearchIcon() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      <circle cx="11" cy="11" r="7" />
+      <path d="M20 20l-3.5-3.5" strokeLinecap="round" />
     </svg>
   );
 }

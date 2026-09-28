@@ -1,5 +1,5 @@
 import { api } from "../api-client";
-import type { ProfileEnvelope, StudentProfile, TutorProfile, TuitionMode } from "@/types/api";
+import type { ProfileEnvelope, StudentProfile, TutorProfile, TutorResume, TuitionMode, AvailabilitySlot } from "@/types/api";
 
 export interface UpdateStudentProfilePayload {
   fullName?: string;
@@ -26,6 +26,7 @@ export interface UpdateTutorProfilePayload {
   gender?: string;
   city?: string;
   area?: string;
+  address?: string;
   pincode?: string;
   teachingExperienceYears?: number;
   highestQualification?: string;
@@ -35,8 +36,7 @@ export interface UpdateTutorProfilePayload {
   teachingMode?: TuitionMode;
   preferredRadiusKm?: number;
   fees?: number;
-  availability?: string;
-  resumeUrl?: string;
+  availabilitySlots?: AvailabilitySlot[];
   location?: { lat: number; lng: number };
 }
 
@@ -60,10 +60,14 @@ export const profilePictureApi = {
   },
 };
 
+/** The tutor's saved resumes; every call returns the updated list, newest first. */
 export const tutorResumeApi = {
-  upload: (file: File) => {
+  list: () => api.get<{ message: string; items: TutorResume[] }>("/tutors/me/resumes"),
+  add: (file: File) => {
     const form = new FormData();
     form.append("file", file);
-    return api.post<ProfileEnvelope<TutorProfile>>("/tutors/me/resume", form);
+    return api.post<{ message: string; items: TutorResume[] }>("/tutors/me/resumes", form);
   },
+  remove: (resumeId: string) =>
+    api.delete<{ message: string; items: TutorResume[] }>(`/tutors/me/resumes/${resumeId}`),
 };

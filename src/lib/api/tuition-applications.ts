@@ -9,14 +9,16 @@ export interface TuitionApplicationPayload {
   fullAddress: string;
   area: string;
   city: string;
-  resume: File;
+  /** Exactly one of these: a new upload, or the id of a saved resume. */
+  resume?: File;
+  resumeId?: string;
 }
 
 export const tuitionApplicationsApi = {
-  /** Multipart: text fields plus the resume file under "resume". */
+  /** Multipart: text fields plus either the resume file under "resume" or a saved "resumeId". */
   apply: (payload: TuitionApplicationPayload) => {
     const form = new FormData();
-    for (const [key, value] of Object.entries(payload)) form.append(key, value);
+    for (const [key, value] of Object.entries(payload)) if (value !== undefined) form.append(key, value);
     return api.post<{ message: string; application: TuitionApplication }>("/tuition-applications", form);
   },
   listMine: () => api.get<{ message: string; items: TuitionApplication[] }>("/tuition-applications/me"),

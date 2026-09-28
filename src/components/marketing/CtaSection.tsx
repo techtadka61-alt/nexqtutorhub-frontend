@@ -13,7 +13,7 @@ export function CtaSection() {
           minutes to get started.
         </p>
         <div className="flex flex-col gap-3 sm:flex-row">
-          <Button href="/signup/student" size="lg">
+          <Button href="/find-tutors" size="lg">
             Find a tutor
           </Button>
           <Button href="/signup/tutor" size="lg" variant="outline">

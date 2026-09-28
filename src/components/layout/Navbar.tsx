@@ -7,6 +7,7 @@ import { Logo } from "@/components/ui/Logo";
 import { Button } from "@/components/ui/Button";
 import { Container } from "@/components/ui/Container";
 import { TopBar } from "@/components/layout/TopBar";
+import { UserMenu } from "@/components/layout/UserMenu";
 import { useAuth, roleHomePath } from "@/context/auth-context";
 import { cn } from "@/lib/cn";
 
@@ -31,7 +32,7 @@ export function Navbar() {
 }
 
 function NavbarContent({ pathname }: { pathname: string }) {
-  const { user, isLoading } = useAuth();
+  const { user, isLoading, logout } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
 
   return (
@@ -59,15 +60,13 @@ function NavbarContent({ pathname }: { pathname: string }) {
 
         <div className="hidden items-center gap-3 lg:flex">
           {!isLoading && user ? (
-            <Button href={roleHomePath(user.role)} size="sm" variant="primary">
-              Go to my account
-            </Button>
+            <UserMenu />
           ) : (
             <>
               <Button href="/login" size="sm" variant="ghost">
                 Sign in
               </Button>
-              <Button href="/signup/student" size="sm" variant="primary">
+              <Button href="/find-tutors" size="sm" variant="primary">
                 Find a tutor
               </Button>
             </>
@@ -104,15 +103,31 @@ function NavbarContent({ pathname }: { pathname: string }) {
             ))}
             <div className="mt-2 flex flex-col gap-2 border-t border-border pt-4">
               {!isLoading && user ? (
-                <Button href={roleHomePath(user.role)} variant="primary">
-                  Go to my account
-                </Button>
+                <>
+                  <div className="px-4 pb-2">
+                    <p className="text-sm font-semibold text-text-primary">{user.fullName}</p>
+                    <p className="text-xs text-text-secondary">{user.email}</p>
+                  </div>
+                  <Button href={roleHomePath(user.role)} variant="primary">
+                    Dashboard
+                  </Button>
+                  <Button href="/account/profile" variant="outline">
+                    My profile
+                  </Button>
+                  <button
+                    type="button"
+                    onClick={() => void logout()}
+                    className="cursor-pointer rounded-full px-4 py-3 text-sm font-semibold text-error transition-colors hover:bg-error/10"
+                  >
+                    Logout
+                  </button>
+                </>
               ) : (
                 <>
                   <Button href="/login" variant="outline">
                     Sign in
                   </Button>
-                  <Button href="/signup/student" variant="primary">
+                  <Button href="/find-tutors" variant="primary">
                     Find a tutor
                   </Button>
                 </>

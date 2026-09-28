@@ -1,30 +1,41 @@
 "use client";
 
 import { useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useAuth, roleHomePath } from "@/context/auth-context";
 import { UserRole } from "@/types/api";
+import { returnTo } from "@/lib/return-to";
 
 interface ProtectedRouteProps {
   allow?: UserRole[];
   children: React.ReactNode;
 }
 
-/** Client-side route guard: redirects to login when unauthenticated, or to the user's own account home on a role mismatch. */
+/**
+ * Client-side route guard: redirects to login when unauthenticated (passing the current page as `next`, so
+ * login returns here), or to the user's own account home on a role mismatch.
+ */
 export function ProtectedRoute({ allow, children }: ProtectedRouteProps) {
-  const { user, isLoading } = useAuth();
+  const { user, isLoading, didLogout } = useAuth();
   const router = useRouter();
+  const pathname = usePathname();
 
   useEffect(() => {
     if (isLoading) return;
     if (!user) {
-      router.replace("/login");
+      // After a deliberate logout, don't carry this page into the next login (it may be someone else's).
+      if (didLogout) {
+        router.replace("/login");
+        return;
+      }
+      returnTo.set(pathname);
+      router.replace(`/login?next=${encodeURIComponent(pathname)}`);
       return;
     }
     if (allow && !allow.includes(user.role)) {
       router.replace(roleHomePath(user.role));
     }
-  }, [isLoading, user, allow, router]);
+  }, [isLoading, user, allow, router, pathname, didLogout]);
 
   if (isLoading || !user || (allow && !allow.includes(user.role))) {
     return (

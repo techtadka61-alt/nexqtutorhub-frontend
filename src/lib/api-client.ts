@@ -33,10 +33,14 @@ async function refreshAccessToken(): Promise<string | null> {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ refreshToken }),
         });
+        // If someone logged in/out while this was in flight, the stored tokens belong to a newer session:
+        // leave them alone rather than clobbering them with (or clearing them for) the old account.
+        const superseded = tokenStorage.getRefreshToken() !== refreshToken;
         if (!res.ok) {
-          tokenStorage.clear();
-          return null;
+          if (!superseded) tokenStorage.clear();
+          return superseded ? tokenStorage.getAccessToken() : null;
         }
+        if (superseded) return tokenStorage.getAccessToken();
         const json = (await res.json()) as ApiEnvelope<AuthTokens>;
         tokenStorage.setTokens(json.data.accessToken, json.data.refreshToken ?? refreshToken);
         return json.data.accessToken;

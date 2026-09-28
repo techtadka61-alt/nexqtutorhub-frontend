@@ -3,23 +3,18 @@
 import { useEffect, useState } from "react";
 import { Input } from "@/components/ui/Input";
 import { Select } from "@/components/ui/Select";
-import { Textarea } from "@/components/ui/Textarea";
+import { AvailabilityPicker, availabilityError } from "@/components/ui/AvailabilityPicker";
 import { Button } from "@/components/ui/Button";
 import { MultiSelectChips } from "@/components/ui/MultiSelectChips";
 import { Card, CardBody, CardHeader } from "@/components/ui/Card";
-import { tutorProfileApi, tutorResumeApi, type UpdateTutorProfilePayload } from "@/lib/api/profile";
+import { tutorProfileApi, type UpdateTutorProfilePayload } from "@/lib/api/profile";
 import { BOARD_OPTIONS, CLASS_OPTIONS, QUALIFICATION_OPTIONS, SUBJECT_OPTIONS, TUITION_MODE_OPTIONS } from "@/lib/constants";
 import { ApiError } from "@/lib/api-client";
-import { assetUrl } from "@/lib/config";
 import type { TutorProfile } from "@/types/api";
-import { useAuth } from "@/context/auth-context";
-
-const ALLOWED_RESUME_TYPES = new Set([
-  "application/pdf",
-  "application/msword",
-  "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-]);
-const MAX_RESUME_SIZE_MB = 5;
+import { useRouter } from "next/navigation";
+import { roleHomePath, useAuth } from "@/context/auth-context";
+import { SuccessModal } from "@/components/ui/SuccessModal";
+import { ResumeLibrary } from "@/components/account/ResumeLibrary";
 
 type FormState = UpdateTutorProfilePayload;
 
@@ -30,6 +25,7 @@ function toFormState(profile: TutorProfile | null, fallbackName?: string): FormS
     gender: profile?.gender ?? "",
     city: profile?.city ?? "",
     area: profile?.area ?? "",
+    address: profile?.address ?? "",
     pincode: profile?.pincode ?? "",
     teachingExperienceYears: profile?.teachingExperienceYears,
     highestQualification: profile?.highestQualification ?? "",
@@ -39,7 +35,7 @@ function toFormState(profile: TutorProfile | null, fallbackName?: string): FormS
     teachingMode: profile?.teachingMode,
     preferredRadiusKm: profile?.preferredRadiusKm,
     fees: profile?.fees,
-    availability: profile?.availability ?? "",
+    availabilitySlots: profile?.availabilitySlots ?? [],
   };
 }
 
@@ -52,52 +48,26 @@ const GENDER_OPTIONS = [
 
 export function TutorProfileForm() {
   const { user } = useAuth();
+  const router = useRouter();
   const [form, setForm] = useState<FormState>(toFormState(null));
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
   const [locationStatus, setLocationStatus] = useState<"idle" | "locating" | "done" | "error">("idle");
-  const [resumeUrl, setResumeUrl] = useState<string | undefined>();
-  const [isUploadingResume, setIsUploadingResume] = useState(false);
-  const [resumeError, setResumeError] = useState<string | null>(null);
+  // Free-text availability saved before time slots existed; shown so the tutor can re-enter it as slots.
+  const [legacyAvailability, setLegacyAvailability] = useState<string | undefined>();
 
   useEffect(() => {
     tutorProfileApi
       .getMine()
       .then((res) => {
         setForm(toFormState(res.item));
-        setResumeUrl(res.item.resumeUrl);
+        if (!res.item.availabilitySlots?.length) setLegacyAvailability(res.item.availability || undefined);
       })
       .catch((err) => setError(err instanceof ApiError ? err.message : "Failed to load your profile."))
       .finally(() => setIsLoading(false));
   }, []);
-
-  async function handleResumeSelect(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0];
-    e.target.value = "";
-    if (!file) return;
-    setResumeError(null);
-
-    if (!ALLOWED_RESUME_TYPES.has(file.type)) {
-      setResumeError("Please upload a PDF or Word document (.pdf, .doc, .docx).");
-      return;
-    }
-    if (file.size > MAX_RESUME_SIZE_MB * 1024 * 1024) {
-      setResumeError(`File is too large. Maximum size is ${MAX_RESUME_SIZE_MB}MB.`);
-      return;
-    }
-
-    setIsUploadingResume(true);
-    try {
-      const res = await tutorResumeApi.upload(file);
-      setResumeUrl(res.item.resumeUrl);
-    } catch (err) {
-      setResumeError(err instanceof ApiError ? err.message : "Failed to upload your CV. Please try again.");
-    } finally {
-      setIsUploadingResume(false);
-    }
-  }
 
   function update<K extends keyof FormState>(key: K, value: FormState[K]) {
     setForm((prev) => ({ ...prev, [key]: value }));
@@ -123,10 +93,17 @@ export function TutorProfileForm() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
+    const slotError = availabilityError(form.availabilitySlots ?? []);
+    if (slotError) return setError(slotError);
     setIsSaving(true);
     try {
-      const res = await tutorProfileApi.updateMine(form);
+      // An empty slot list clears availability server-side; don't let it wipe old free text the tutor
+      // hasn't converted to slots yet.
+      const { availabilitySlots, ...rest } = form;
+      const keepLegacy = !availabilitySlots?.length && !!legacyAvailability;
+      const res = await tutorProfileApi.updateMine(keepLegacy ? rest : form);
       setForm(toFormState(res.item));
+      if (res.item.availabilitySlots?.length) setLegacyAvailability(undefined);
       setSuccess(true);
     } catch (err) {
       setError(err instanceof ApiError ? err.message : "Failed to save your profile. Please try again.");
@@ -144,11 +121,16 @@ export function TutorProfileForm() {
       {error && (
         <div className="rounded-xl border border-error/30 bg-error/5 px-4 py-3 text-sm text-error">{error}</div>
       )}
-      {success && (
-        <div className="rounded-xl border border-success/30 bg-success/5 px-4 py-3 text-sm text-success">
-          Your profile has been updated.
-        </div>
-      )}
+      <SuccessModal
+        open={success}
+        title="Profile updated"
+        description="Your changes have been saved successfully."
+        confirmLabel="Go to dashboard"
+        onConfirm={() => {
+          setSuccess(false);
+          if (user) router.push(roleHomePath(user.role));
+        }}
+      />
 
       <Card>
         <CardHeader>
@@ -187,6 +169,13 @@ export function TutorProfileForm() {
             <Input label="Area / locality" value={form.area} onChange={(e) => update("area", e.target.value)} />
             <Input label="Pincode" value={form.pincode} onChange={(e) => update("pincode", e.target.value)} />
           </div>
+          <Input
+            label="Full address"
+            placeholder="House no., street, landmark"
+            value={form.address}
+            onChange={(e) => update("address", e.target.value)}
+            hint="Pre-filled from your tuition application, if you submitted one."
+          />
           <div className="grid gap-5 sm:grid-cols-2">
             <Select
               label="Teaching mode"
@@ -228,56 +217,7 @@ export function TutorProfileForm() {
         </CardBody>
       </Card>
 
-      <Card>
-        <CardHeader>
-          <h2 className="text-base font-semibold text-text-primary">CV / resume</h2>
-        </CardHeader>
-        <CardBody className="flex flex-col gap-4">
-          <p className="text-sm text-text-secondary">
-            Upload your CV so families can review your teaching background. PDF or Word, up to{" "}
-            {MAX_RESUME_SIZE_MB}MB.
-          </p>
-
-          {resumeError && (
-            <div className="rounded-xl border border-error/30 bg-error/5 px-4 py-3 text-sm text-error">
-              {resumeError}
-            </div>
-          )}
-
-          <div className="flex flex-col gap-3 rounded-xl border border-border bg-bg p-4 sm:flex-row sm:items-center sm:justify-between">
-            <div className="flex items-center gap-3">
-              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-brand-secondary-light text-brand-primary">
-                <FileIcon />
-              </span>
-              <div>
-                <p className="text-sm font-medium text-text-primary">
-                  {resumeUrl ? "CV uploaded" : "No CV uploaded yet"}
-                </p>
-                {resumeUrl && (
-                  <a
-                    href={assetUrl(resumeUrl)}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-xs font-semibold text-brand-secondary hover:text-brand-primary"
-                  >
-                    View current CV
-                  </a>
-                )}
-              </div>
-            </div>
-            <label className="inline-flex cursor-pointer items-center justify-center gap-2 rounded-full border border-border bg-surface px-5 py-2.5 text-sm font-semibold text-text-primary transition-colors hover:border-brand-secondary hover:text-brand-secondary">
-              {isUploadingResume ? "Uploading…" : resumeUrl ? "Replace CV" : "Upload CV"}
-              <input
-                type="file"
-                accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-                className="hidden"
-                disabled={isUploadingResume}
-                onChange={handleResumeSelect}
-              />
-            </label>
-          </div>
-        </CardBody>
-      </Card>
+      <ResumeLibrary />
 
       <Card>
         <CardHeader>
@@ -329,11 +269,14 @@ export function TutorProfileForm() {
             onChange={(v) => update("boards", v)}
           />
 
-          <Textarea
-            label="Availability"
-            placeholder="e.g. Weekdays 4–8 PM, weekends flexible"
-            value={form.availability}
-            onChange={(e) => update("availability", e.target.value)}
+          <AvailabilityPicker
+            hint={
+              legacyAvailability
+                ? `Previously saved as: “${legacyAvailability}”. Add it as time slots below.`
+                : "Pick the days and hours you're free to teach. Add more slots for different timings."
+            }
+            value={form.availabilitySlots ?? []}
+            onChange={(slots) => update("availabilitySlots", slots)}
           />
         </CardBody>
       </Card>
@@ -344,14 +287,5 @@ export function TutorProfileForm() {
         </Button>
       </div>
     </form>
-  );
-}
-
-function FileIcon() {
-  return (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-      <path d="M14 3v5a1 1 0 001 1h5" strokeLinecap="round" strokeLinejoin="round" />
-      <path d="M6 21a2 2 0 01-2-2V5a2 2 0 012-2h8l6 6v10a2 2 0 01-2 2H6Z" strokeLinejoin="round" />
-    </svg>
   );
 }

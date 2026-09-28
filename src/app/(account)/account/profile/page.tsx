@@ -1,5 +1,6 @@
 "use client";
 
+import { Suspense } from "react";
 import { useAuth } from "@/context/auth-context";
 import { UserRole } from "@/types/api";
 import { StudentProfileForm } from "@/components/account/StudentProfileForm";
@@ -19,7 +20,14 @@ export default function ProfilePage() {
         </p>
       </div>
 
-      {user?.role === UserRole.TUTOR ? <TutorProfileForm /> : <StudentProfileForm />}
+      {user?.role === UserRole.TUTOR ? (
+        <TutorProfileForm />
+      ) : (
+        // StudentProfileForm reads ?setup= via useSearchParams, which needs a Suspense boundary.
+        <Suspense fallback={<p className="text-sm text-text-secondary">Loading your profile…</p>}>
+          <StudentProfileForm />
+        </Suspense>
+      )}
     </div>
   );
 }

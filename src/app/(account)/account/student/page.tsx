@@ -111,8 +111,8 @@ export default function StudentOverviewPage() {
               Browse verified tutors near you, filtered by subject, class and budget.
             </p>
           </div>
-          <Button href="/how-it-works" variant="secondary">
-            See how matching works
+          <Button href="/find-tutors" variant="secondary">
+            Browse matched tutors
           </Button>
         </CardBody>
       </Card>
