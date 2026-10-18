@@ -11,7 +11,7 @@ import type { Completion } from "@/lib/profile-completion";
 import { UserRole } from "@/types/api";
 
 const ALLOWED_IMAGE_TYPES = new Set(["image/jpeg", "image/png", "image/webp"]);
-const MAX_IMAGE_MB = 5;
+const MAX_IMAGE_MB = 4;
 
 const VERIFICATION: Record<string, { label: string; variant: "success" | "warning" | "error" }> = {
   verified: { label: "Verified tutor", variant: "success" },

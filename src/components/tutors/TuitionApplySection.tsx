@@ -23,7 +23,7 @@ const MODE_OPTIONS: { value: TuitionApplicationMode; label: string }[] = [
   { value: "other", label: "Other" },
 ];
 
-const MAX_RESUME_MB = 5;
+const MAX_RESUME_MB = 4;
 const RESUME_ACCEPT = ".pdf,.doc,.docx";
 const RESUME_TYPES = new Set([
   "application/pdf",

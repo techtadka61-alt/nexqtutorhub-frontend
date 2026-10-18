@@ -12,7 +12,7 @@ const ALLOWED_RESUME_TYPES = new Set([
   "application/msword",
   "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
 ]);
-const MAX_RESUME_SIZE_MB = 5;
+const MAX_RESUME_SIZE_MB = 4;
 
 /**
  * The tutor's saved CVs, LinkedIn-style: add as many as they like, each stays until the tutor removes it.
