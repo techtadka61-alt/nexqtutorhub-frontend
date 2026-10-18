@@ -13,8 +13,6 @@ export const metadata: Metadata = {
     "NexTutorHub is a local home-tuition marketplace connecting students and parents with verified tutors, matched by subject, class, area, schedule and budget.",
 };
 
-// frontend layout here.....
-
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
