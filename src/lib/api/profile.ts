@@ -1,3 +1,4 @@
+import type { PickedLocation } from "@/lib/geolocation";
 import { api } from "../api-client";
 import type { ProfileEnvelope, StudentProfile, TutorProfile, TutorResume, TuitionMode, AvailabilitySlot } from "@/types/api";
 
@@ -17,6 +18,7 @@ export interface UpdateStudentProfilePayload {
   guardianName?: string;
   guardianMobileNumber?: string;
   guardianEmail?: string;
+  location?: PickedLocation;
 }
 
 export interface UpdateTutorProfilePayload {
@@ -30,14 +32,16 @@ export interface UpdateTutorProfilePayload {
   pincode?: string;
   teachingExperienceYears?: number;
   highestQualification?: string;
+  qualificationDetails?: string;
+  bio?: string;
+  languages?: string[];
   subjects?: string[];
   classes?: string[];
   boards?: string[];
   teachingMode?: TuitionMode;
-  preferredRadiusKm?: number;
   fees?: number;
   availabilitySlots?: AvailabilitySlot[];
-  location?: { lat: number; lng: number };
+  location?: PickedLocation;
 }
 
 export const studentProfileApi = {
@@ -50,6 +54,11 @@ export const tutorProfileApi = {
   getMine: () => api.get<ProfileEnvelope<TutorProfile>>("/tutors/me"),
   updateMine: (payload: UpdateTutorProfilePayload) =>
     api.patch<ProfileEnvelope<TutorProfile>>("/tutors/me", payload),
+};
+
+/** Account-level fields shared by every role (PATCH /profile/me resolves the role from the token). */
+export const accountApi = {
+  updateMobile: (mobileNumber: string) => api.patch<{ message: string }>("/profile/me", { mobileNumber }),
 };
 
 export const profilePictureApi = {

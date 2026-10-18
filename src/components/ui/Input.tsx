@@ -1,6 +1,7 @@
 import { forwardRef, useId, useState } from "react";
 import type { InputHTMLAttributes, ReactNode } from "react";
 import { cn } from "@/lib/cn";
+import { FieldLabel, OptionalTag, RequiredMark } from "@/components/ui/FieldLabel";
 
 export interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
   label?: string;
@@ -10,10 +11,12 @@ export interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
   hint?: string;
   leftIcon?: ReactNode;
   containerClassName?: string;
+  /** Marks the label "(optional)". Required fields are marked from `required`. */
+  optional?: boolean;
 }
 
 export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
-  { label, labelAsPlaceholder, error, hint, leftIcon, className, containerClassName, id, type, placeholder, ...rest },
+  { label, labelAsPlaceholder, error, hint, leftIcon, className, containerClassName, id, type, placeholder, optional, ...rest },
   ref,
 ) {
   const generatedId = useId();
@@ -21,16 +24,17 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
   const [showPassword, setShowPassword] = useState(false);
   const isPassword = type === "password";
   const resolvedType = isPassword && showPassword ? "text" : type;
+  // A native placeholder can't show a red "*", so a label-as-placeholder is drawn as an overlay that hides
+  // itself (via :placeholder-shown) as soon as the field has a value.
+  const overlayLabel = labelAsPlaceholder && !!label;
+  const requiredMark = rest.required ? <RequiredMark /> : optional ? <OptionalTag /> : null;
 
   return (
     <div className={cn("flex flex-col gap-1.5", containerClassName)}>
       {label && (
-        <label
-          htmlFor={inputId}
-          className={cn("text-sm font-medium text-text-primary", labelAsPlaceholder && "sr-only")}
-        >
+        <FieldLabel htmlFor={inputId} required={rest.required} optional={optional} className={cn(labelAsPlaceholder && "sr-only")}>
           {label}
-        </label>
+        </FieldLabel>
       )}
       <div className="relative">
         {leftIcon && (
@@ -43,16 +47,29 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
           id={inputId}
           type={resolvedType}
           className={cn(
-            "h-13 w-full rounded-xl border bg-surface px-4 text-sm text-text-primary placeholder:text-text-secondary/70 transition-colors focus-ring",
+            "peer h-13 w-full rounded-xl border bg-surface px-4 text-sm text-text-primary placeholder:text-text-secondary/70 transition-colors focus-ring",
             !!leftIcon && "pl-11",
             isPassword && "pr-11",
             error ? "border-error" : "border-border focus:border-brand-secondary",
             className,
           )}
           aria-invalid={!!error}
-          placeholder={labelAsPlaceholder ? label : placeholder}
+          placeholder={overlayLabel ? " " : placeholder}
+          aria-describedby={error || hint ? `${inputId}-message` : undefined}
           {...rest}
         />
+        {overlayLabel && (
+          <span
+            aria-hidden
+            className={cn(
+              "pointer-events-none absolute top-1/2 hidden -translate-y-1/2 text-sm text-text-secondary/70 peer-placeholder-shown:block",
+              leftIcon ? "left-11" : "left-4",
+            )}
+          >
+            {label}
+            {requiredMark}
+          </span>
+        )}
         {isPassword && (
           <button
             type="button"
@@ -66,9 +83,13 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
         )}
       </div>
       {error ? (
-        <p className="text-xs font-medium text-error">{error}</p>
+        <p id={`${inputId}-message`} role="alert" className="text-xs font-medium text-error">
+          {error}
+        </p>
       ) : hint ? (
-        <p className="text-xs text-text-secondary">{hint}</p>
+        <p id={`${inputId}-message`} className="text-xs text-text-secondary">
+          {hint}
+        </p>
       ) : null}
     </div>
   );

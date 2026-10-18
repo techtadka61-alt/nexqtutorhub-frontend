@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { bodyFont, displayFont, scriptFont } from "@/lib/fonts";
 import { AuthProvider } from "@/context/auth-context";
+import { Toaster } from "@/components/ui/Toast";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -20,6 +21,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
     >
       <body className="flex min-h-full flex-col bg-bg text-text-primary">
         <AuthProvider>{children}</AuthProvider>
+        <Toaster />
       </body>
     </html>
   );

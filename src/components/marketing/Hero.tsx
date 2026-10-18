@@ -1,12 +1,13 @@
 import Image from "next/image";
+import { PLATFORM_STATS } from "@/lib/platform-stats";
 import { Container } from "@/components/ui/Container";
 import { Button } from "@/components/ui/Button";
 import heroImage from "@/assets/images/hero-tuition.png";
 
 const STATS = [
-  { value: "120+", label: "Local tutors" },
-  { value: "38", label: "Areas covered" },
-  { value: "4.8", label: "Average rating" },
+  { value: PLATFORM_STATS.verifiedTutors, label: "Verified tutors" },
+  { value: PLATFORM_STATS.studentsTaught, label: "Students taught" },
+  { value: PLATFORM_STATS.fiveStarReviews, label: "Five-star reviews" },
 ];
 
 export function Hero() {
@@ -47,7 +48,7 @@ export function Hero() {
         </p>
 
         <div className="flex flex-col gap-3 sm:flex-row">
-          <Button href="/find-tutors" size="lg" leftIcon={<SearchIcon />}>
+          <Button href="/request-tutor" size="lg" leftIcon={<SearchIcon />}>
             Find a tutor
           </Button>
           <Button href="/signup/tutor" size="lg" variant="outline" rightIcon={<ArrowIcon />}>

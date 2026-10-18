@@ -7,6 +7,11 @@ export interface FaqItem {
 
 export const STUDENT_FAQS: FaqItem[] = [
   {
+    question: "Is NexTutorHub free?",
+    answer:
+      "Yes. In this first version NexTutorHub is completely free for students and parents — no sign-up fee, no booking fee and no commission. You only pay your tutor the fee you agree with them.",
+  },
+  {
     question: "How do I find a suitable tutor?",
     answer:
       "Create a free student account and add your requirement — class, subject, board, budget, schedule and whether you want home or online tuition. We then show you verified tutors near your area who match it.",
@@ -50,6 +55,11 @@ export const STUDENT_FAQS: FaqItem[] = [
 
 export const TUTOR_FAQS: FaqItem[] = [
   {
+    question: "Do I have to pay to join as a tutor?",
+    answer:
+      "No. In this first version NexTutorHub is completely free for tutors — no listing fee and no commission on the fees students pay you.",
+  },
+  {
     question: "How do I become a tutor on NexTutorHub?",
     answer:
       "Create a free tutor account, then complete your profile with your subjects, classes, boards, qualifications, experience, teaching area and fees. Once verified, your profile appears in student searches nearby.",
@@ -62,7 +72,7 @@ export const TUTOR_FAQS: FaqItem[] = [
   {
     question: "Can I choose where and how I teach?",
     answer:
-      "Yes. Set your city, area and travel radius for home tuition, mark yourself available online, or both. You only appear in searches that match your setup.",
+      "Yes. Set your city, area and location for home tuition (you're matched with students within 10 km), mark yourself available online, or both. You only appear in searches that match your setup.",
   },
   {
     question: "Who decides my fees?",
@@ -77,6 +87,40 @@ export const TUTOR_FAQS: FaqItem[] = [
     question: "Can I teach more than one subject or class?",
     answer:
       "Yes. Add every subject, class and board you are comfortable teaching, and you will be matched with students across all of them.",
+  },
+];
+
+/** For pages read by students and tutors alike (Contact, Terms, Privacy). */
+export const GENERAL_FAQS: FaqItem[] = [
+  {
+    question: "Is NexTutorHub free?",
+    answer:
+      "Yes. In this first version NexTutorHub is completely free for students, parents and tutors — no sign-up fee, no listing fee and no commission. Tuition fees are agreed directly between the student and the tutor.",
+  },
+  {
+    question: "How does the 10 km matching work?",
+    answer:
+      "Students and tutors each set their location on the map (GPS, a searched place, or a pin). Students see tutors within 10 km of them, and tutors see student requests within 10 km — with the approximate distance shown.",
+  },
+  {
+    question: "Who can see my phone number and address?",
+    answer:
+      "Your full address and exact location are never shown to other users — only the distance. A verified tutor's number is shown to students, and a student's number is shown to verified tutors near them for open requests, so you can contact each other directly.",
+  },
+  {
+    question: "How are tutors verified?",
+    answer:
+      "Tutors apply with their details and resume. Our team reviews their ID and qualifications before they get the Verified badge and can be contacted by students.",
+  },
+  {
+    question: "Can I sign up with Google?",
+    answer:
+      "Yes. Choose “Sign up with Google”, then add your mobile number, address and location to finish. Your email is verified automatically.",
+  },
+  {
+    question: "How do I contact the NexTutorHub team?",
+    answer:
+      "Use the contact form, email nexqira.online@gmail.com or call +91 93697 76898. We usually reply within 1–2 working days.",
   },
 ];
 

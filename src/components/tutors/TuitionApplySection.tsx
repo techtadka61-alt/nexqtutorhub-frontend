@@ -3,9 +3,12 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/Button";
+import { FieldLabel } from "@/components/ui/FieldLabel";
 import { Input } from "@/components/ui/Input";
+import { MobileInput } from "@/components/ui/MobileInput";
+import { isValidEmail, isValidMobile, isValidName, sanitizeMobile, VALIDATION_MESSAGES } from "@/lib/validation";
 import { useAuth } from "@/context/auth-context";
-import { ApiError } from "@/lib/api-client";
+import { notify } from "@/components/ui/Toast";
 import { tutorProfileApi, tutorResumeApi } from "@/lib/api/profile";
 import { tuitionApplicationsApi } from "@/lib/api/tuition-applications";
 import { cn } from "@/lib/cn";
@@ -88,7 +91,7 @@ function ApplyForm({
   const isPending = latest?.status === "pending";
   const [form, setForm] = useState<FormState>({
     fullName: latest?.fullName ?? defaults.fullName,
-    mobileNumber: latest?.mobileNumber ?? "",
+    mobileNumber: sanitizeMobile(latest?.mobileNumber ?? ""),
     email: latest?.email ?? defaults.email,
     tuitionMode: latest?.tuitionMode ?? "",
     fullAddress: latest?.fullAddress ?? "",
@@ -112,7 +115,7 @@ function ApplyForm({
         const mode = item?.teachingMode === "home" || item?.teachingMode === "online" ? item.teachingMode : "";
         setForm((prev) => ({
           ...prev,
-          mobileNumber: prev.mobileNumber || item?.userId?.mobileNumber || "",
+          mobileNumber: prev.mobileNumber || sanitizeMobile(item?.userId?.mobileNumber ?? ""),
           fullAddress: prev.fullAddress || item?.address || "",
           area: prev.area || item?.area || "",
           city: prev.city || item?.city || "",
@@ -155,6 +158,9 @@ function ApplyForm({
     if (access === "not-tutor")
       return setError("You're signed in with a student account. Please use a tutor account to apply.");
     if (isPending) return setError("Your application is already under review.");
+    if (!isValidName(form.fullName)) return setError(VALIDATION_MESSAGES.name);
+    if (!isValidMobile(form.mobileNumber)) return setError(VALIDATION_MESSAGES.mobile);
+    if (!isValidEmail(form.email)) return setError(VALIDATION_MESSAGES.email);
     if (!form.tuitionMode) return setError("Please choose what your tuition is related to.");
     const useNewUpload = resumeChoice === NEW_RESUME;
     if (useNewUpload && !resume) return setError("Please upload your resume or choose one of your saved resumes.");
@@ -167,9 +173,10 @@ function ApplyForm({
         ...(useNewUpload ? { resume: resume as File } : { resumeId: resumeChoice }),
       });
       setResume(null);
+      notify.success(res.message, "Application submitted.");
       onSubmitted(res.application);
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "Something went wrong. Please try again.");
+      notify.error(err);
     } finally {
       setIsSubmitting(false);
     }
@@ -188,6 +195,23 @@ function ApplyForm({
 
       {isPending && latest && <PendingNotice application={latest} />}
 
+      {access === "not-tutor" && (
+        <div role="status" className="rounded-xl border border-warning/40 bg-warning/5 px-4 py-3 text-sm text-text-primary">
+          <p className="font-semibold">This application is for tutors only.</p>
+          <p className="mt-1 text-text-secondary">
+            You&apos;re signed in with a student account. To teach on NexTutorHub, create a separate{" "}
+            <Link href="/signup/tutor" className="font-semibold text-brand-secondary hover:text-brand-primary">
+              tutor account
+            </Link>
+            . Looking for a tutor instead?{" "}
+            <Link href="/find-tutors" className="font-semibold text-brand-secondary hover:text-brand-primary">
+              Find tutors near you
+            </Link>
+            .
+          </p>
+        </div>
+      )}
+
       {error && (
         <div role="alert" className="rounded-xl border border-error/30 bg-error/5 px-4 py-3 text-sm text-error">
           {error}
@@ -205,7 +229,7 @@ function ApplyForm({
         </div>
       )}
 
-      <fieldset disabled={isPending || isSubmitting} className="flex flex-col gap-5 disabled:opacity-70">
+      <fieldset disabled={isPending || isSubmitting || access === "not-tutor"} className="flex flex-col gap-5 disabled:opacity-70">
         <div className="grid gap-5 sm:grid-cols-2">
           <Input
             label="Full Name"
@@ -216,14 +240,12 @@ function ApplyForm({
             value={form.fullName}
             onChange={(e) => update("fullName", e.target.value)}
           />
-          <Input
+          <MobileInput
             label="Mobile Number"
             placeholder="10-digit mobile number"
-            type="tel"
-            autoComplete="tel"
             required
             value={form.mobileNumber}
-            onChange={(e) => update("mobileNumber", e.target.value)}
+            onValueChange={(value) => update("mobileNumber", value)}
           />
         </div>
 
@@ -238,7 +260,9 @@ function ApplyForm({
         />
 
         <fieldset>
-          <legend className="text-sm font-medium text-text-primary">Related to</legend>
+          <FieldLabel as="legend" required>
+            Related to
+          </FieldLabel>
           <div className="mt-2 grid grid-cols-3 gap-3">
             {MODE_OPTIONS.map((option) => {
               const checked = form.tuitionMode === option.value;
@@ -269,7 +293,9 @@ function ApplyForm({
         </fieldset>
 
         <fieldset className="flex flex-col gap-2">
-          <legend className="text-sm font-medium text-text-primary">Resume</legend>
+          <FieldLabel as="legend" required>
+            Resume
+          </FieldLabel>
           {isPending && latest ? (
             <ResumeOption checked label={latest.resumeOriginalName} hint="Sent with this application" />
           ) : (
@@ -378,15 +404,6 @@ function ApplyForm({
           first — only registered, signed-in tutors can apply. Already have an account?{" "}
           <Link href="/login" className="font-semibold text-brand-secondary hover:text-brand-primary">
             Sign in
-          </Link>
-          .
-        </p>
-      )}
-      {access === "not-tutor" && (
-        <p className="text-sm text-text-secondary">
-          You&apos;re signed in with a student account. Applications need a{" "}
-          <Link href="/signup/tutor" className="font-semibold text-brand-secondary hover:text-brand-primary">
-            tutor account
           </Link>
           .
         </p>

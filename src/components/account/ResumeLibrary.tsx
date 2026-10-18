@@ -18,8 +18,12 @@ const MAX_RESUME_SIZE_MB = 5;
  * The tutor's saved CVs, LinkedIn-style: add as many as they like, each stays until the tutor removes it.
  * When applying for tuition they pick one of these (or upload a new one, which is saved here too).
  */
-export function ResumeLibrary() {
-  const [resumes, setResumes] = useState<TutorResume[] | null>(null);
+export function ResumeLibrary({ onChange }: { onChange?: (resumes: TutorResume[]) => void } = {}) {
+  const [resumes, setResumesState] = useState<TutorResume[] | null>(null);
+  function setResumes(items: TutorResume[]) {
+    setResumesState(items);
+    onChange?.(items);
+  }
   const [error, setError] = useState<string | null>(null);
   const [isUploading, setIsUploading] = useState(false);
   const [removingId, setRemovingId] = useState<string | null>(null);
@@ -28,11 +32,16 @@ export function ResumeLibrary() {
   useEffect(() => {
     tutorResumeApi
       .list()
-      .then((res) => setResumes(res.items))
+      .then((res) => {
+        setResumesState(res.items);
+        onChange?.(res.items);
+      })
       .catch((err) => {
-        setResumes([]);
+        setResumesState([]);
         setError(err instanceof ApiError ? err.message : "Failed to load your resumes.");
       });
+    // Load once on mount; a new onChange identity must not refetch.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   async function handleSelect(e: React.ChangeEvent<HTMLInputElement>) {
@@ -70,7 +79,7 @@ export function ResumeLibrary() {
   }
 
   return (
-    <Card>
+    <Card id="resume" className="scroll-mt-6">
       <CardHeader className="flex items-center justify-between gap-3">
         <h2 className="text-base font-semibold text-text-primary">CV / resume</h2>
         <button

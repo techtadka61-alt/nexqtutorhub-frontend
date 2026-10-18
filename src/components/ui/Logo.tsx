@@ -1,6 +1,5 @@
 import Image from "next/image";
 import Link from "next/link";
-import { cn } from "@/lib/cn";
 import logoHorizontal from "@/assets/images/logo-horizontal.png";
 import logoHorizontalLight from "@/assets/images/logo-horizontal-light.png";
 import logoStacked from "@/assets/images/logo-full.png";
@@ -26,7 +25,8 @@ export function Logo({ variant = "horizontal", className, href = "/", priority }
       src={SOURCES[variant]}
       alt="NexTutorHub"
       priority={priority}
-      className={cn(variant === "stacked" ? "h-16 w-auto" : "h-9 w-auto", className)}
+      // A passed className replaces the default size (cn doesn't dedupe conflicting h-* classes).
+      className={className ?? (variant === "stacked" ? "h-16 w-auto" : "h-9 w-auto")}
     />
   );
 

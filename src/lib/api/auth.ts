@@ -1,5 +1,6 @@
+import type { PickedLocation } from "@/lib/geolocation";
 import { api } from "../api-client";
-import type { LoginResponse, RegisterResponse, SafeUser, UserRole } from "@/types/api";
+import type { GoogleAuthResponse, LoginResponse, RegisterResponse, SafeUser, UserRole } from "@/types/api";
 
 export interface LoginPayload {
   email: string;
@@ -15,9 +16,25 @@ export interface RegisterStudentPayload {
   password: string;
   confirmPassword: string;
   termsAccepted: boolean;
+  /** Optional GPS position captured at signup. */
+  location?: PickedLocation;
 }
 
 export type RegisterTutorPayload = RegisterStudentPayload;
+
+export interface GoogleAuthPayload {
+  /** Firebase ID token from the Google popup. */
+  idToken: string;
+  /** Existing account: must have this role. New account: the role to create. */
+  role?: UserRole.STUDENT | UserRole.TUTOR;
+  /** New accounts only (sent from the finish-signing-up form). */
+  fullName?: string;
+  mobileNumber?: string;
+  /** Full address (house / street, area, city); private. */
+  address?: string;
+  termsAccepted?: boolean;
+  location?: PickedLocation;
+}
 
 export const authApi = {
   login: (payload: LoginPayload) => api.post<LoginResponse>("/auth/login", payload, { auth: false }),
@@ -25,6 +42,7 @@ export const authApi = {
     api.post<RegisterResponse>("/students/register", payload, { auth: false }),
   registerTutor: (payload: RegisterTutorPayload) =>
     api.post<RegisterResponse>("/tutors/register", payload, { auth: false }),
+  google: (payload: GoogleAuthPayload) => api.post<GoogleAuthResponse>("/auth/google", payload, { auth: false }),
   me: () => api.get<SafeUser>("/auth/me"),
   logout: () => api.post<{ message: string }>("/auth/logout"),
   forgotPassword: (email: string) =>

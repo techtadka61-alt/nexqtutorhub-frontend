@@ -1,4 +1,5 @@
 import { cn } from "@/lib/cn";
+import { FieldLabel } from "@/components/ui/FieldLabel";
 
 interface MultiSelectChipsProps {
   label: string;
@@ -6,9 +7,11 @@ interface MultiSelectChipsProps {
   value: string[];
   onChange: (value: string[]) => void;
   hint?: string;
+  required?: boolean;
+  optional?: boolean;
 }
 
-export function MultiSelectChips({ label, options, value, onChange, hint }: MultiSelectChipsProps) {
+export function MultiSelectChips({ label, options, value, onChange, hint, required, optional }: MultiSelectChipsProps) {
   function toggle(option: string) {
     if (value.includes(option)) onChange(value.filter((v) => v !== option));
     else onChange([...value, option]);
@@ -16,7 +19,9 @@ export function MultiSelectChips({ label, options, value, onChange, hint }: Mult
 
   return (
     <div className="flex flex-col gap-2">
-      <label className="text-sm font-medium text-text-primary">{label}</label>
+      <FieldLabel as="span" required={required} optional={optional}>
+        {label}
+      </FieldLabel>
       <div className="flex flex-wrap gap-2">
         {options.map((option) => {
           const active = value.includes(option);

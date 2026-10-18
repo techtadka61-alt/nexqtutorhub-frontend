@@ -25,4 +25,21 @@ export const tokenStorage = {
     window.localStorage.removeItem(ACCESS_KEY);
     window.localStorage.removeItem(REFRESH_KEY);
   },
+  /** When the session truly ends: the refresh token's `exp` (ms since epoch), or null if unknown/absent. */
+  refreshExpiresAt(): number | null {
+    return jwtExpiry(this.getRefreshToken());
+  },
+  /** localStorage keys, for `storage` events fired by other tabs. */
+  keys: { access: ACCESS_KEY, refresh: REFRESH_KEY },
 };
+
+/** Reads `exp` from a JWT without verifying it — only used to schedule the client-side logout. */
+function jwtExpiry(token: string | null): number | null {
+  if (!token) return null;
+  try {
+    const payload = JSON.parse(atob(token.split(".")[1].replace(/-/g, "+").replace(/_/g, "/")));
+    return typeof payload.exp === "number" ? payload.exp * 1000 : null;
+  } catch {
+    return null;
+  }
+}

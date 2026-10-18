@@ -1,19 +1,20 @@
 import type { Metadata } from "next";
 import Image from "next/image";
+import Link from "next/link";
 import { Container } from "@/components/ui/Container";
 import { Button } from "@/components/ui/Button";
 import { Card, CardBody } from "@/components/ui/Card";
+import { HighlightsSection } from "@/components/marketing/HighlightsSection";
 import { CtaSection } from "@/components/marketing/CtaSection";
 import { FaqSection, TUTOR_FAQS } from "@/components/marketing/FaqSection";
 import { WhyChooseUs } from "@/components/marketing/WhyChooseUs";
 import { TuitionApplyPanel } from "@/components/tutors/TuitionApplySection";
-import { ProtectedRoute } from "@/components/account/ProtectedRoute";
 import tutorApplyImage from "@/assets/images/Tutor-Apply.png";
 
 export const metadata: Metadata = {
-  title: "For Tutors — Become a Tutor",
+  title: "For Tutors — Apply as a Tutor",
   description:
-    "Create your tutor profile on NexTutorHub: add your qualifications, choose home or online tuition, set your teaching area and travel radius, and get discovered by students near you.",
+    "Create your tutor profile on NexTutorHub: add your qualifications, choose home or online tuition, set your teaching area, and get discovered by students near you.",
 };
 
 const STEPS = [
@@ -44,10 +45,24 @@ const APPLY_STEPS = [
   "Fill the form, upload your resume and submit",
 ];
 
-/** Signed-in users only: guests are sent to login and brought back here afterwards. */
+/**
+ * Open to everyone, so students and parents can read it too, but clearly addressed to tutors: the notice up top
+ * points students to Find a tutor, and the application form itself only accepts tutor accounts (as does the API).
+ */
 export default function ForTutorsPage() {
   return (
-    <ProtectedRoute>
+    <>
+      <div className="border-b border-brand-secondary/20 bg-brand-secondary-light/60">
+        <Container className="flex flex-col gap-1 py-3 text-sm text-brand-primary sm:flex-row sm:items-center sm:justify-between">
+          <p>
+            <span className="font-semibold">This page is for tutors and teachers</span> who want to teach students
+            through NexTutorHub.
+          </p>
+          <Link href="/find-tutors" className="w-fit font-semibold underline underline-offset-2 hover:text-brand-secondary">
+            Looking for a tutor? Find one near you →
+          </Link>
+        </Container>
+      </div>
       <section id="apply" className="scroll-mt-24 bg-surface py-14 sm:py-20">
         <Container className="grid gap-12 lg:grid-cols-2 lg:items-center lg:gap-16">
           <div>
@@ -126,7 +141,7 @@ export default function ForTutorsPage() {
             </p>
             <ul className="mt-5 flex flex-col gap-3 text-sm text-text-primary">
               <li className="flex gap-3">
-                <CheckDot /> Home tuition in a specific city and area, within a travel radius you set
+                <CheckDot /> Home tuition for students within 10 km of you
               </li>
               <li className="flex gap-3">
                 <CheckDot /> Online tuition from anywhere, for students who prefer remote classes
@@ -136,8 +151,8 @@ export default function ForTutorsPage() {
               </li>
             </ul>
             <p className="mt-5 text-sm text-text-secondary">
-              This is the same area-and-radius model students use to describe where they need a tutor
-              — so matching works accurately on both sides.
+              Students and tutors are matched by the same 10 km distance rule from each side, using the exact
+              location each of you sets on the map — so matching works accurately both ways.
             </p>
           </div>
 
@@ -154,7 +169,7 @@ export default function ForTutorsPage() {
                   <span className="font-medium text-text-primary">Required</span>
                 </li>
                 <li className="flex justify-between border-b border-border pb-3">
-                  <span>City, area & travel radius</span>
+                  <span>City, area & 10 km reach</span>
                   <span className="font-medium text-text-primary">Required</span>
                 </li>
                 <li className="flex justify-between border-b border-border pb-3">
@@ -175,9 +190,10 @@ export default function ForTutorsPage() {
       </section>
 
       <WhyChooseUs />
+      <HighlightsSection />
       <CtaSection />
       <FaqSection items={TUTOR_FAQS} subtitle="Everything you need to know before you start teaching." />
-    </ProtectedRoute>
+    </>
   );
 }
 

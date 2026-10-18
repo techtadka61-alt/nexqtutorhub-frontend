@@ -4,6 +4,8 @@ import { useEffect, useId, useRef, useState } from "react";
 import Link from "next/link";
 import { roleHomePath, useAuth } from "@/context/auth-context";
 import { cn } from "@/lib/cn";
+import { requestsPathFor } from "@/lib/tuition-request";
+import { assetUrl } from "@/lib/config";
 import { UserRole } from "@/types/api";
 
 const ROLE_LABEL: Partial<Record<UserRole, string>> = {
@@ -41,6 +43,7 @@ export function UserMenu({ showName = true, className }: { showName?: boolean; c
 
   const firstName = user.fullName.trim().split(" ")[0] || "Account";
   const close = () => setIsOpen(false);
+  const requestsPath = requestsPathFor(user.role);
 
   return (
     <div ref={rootRef} className={cn("relative", className)}>
@@ -52,7 +55,7 @@ export function UserMenu({ showName = true, className }: { showName?: boolean; c
         aria-controls={menuId}
         className="flex cursor-pointer items-center gap-2 rounded-full border border-transparent py-1 pl-1 pr-2.5 transition-colors hover:border-border hover:bg-bg focus-ring"
       >
-        <Avatar name={user.fullName} />
+        <Avatar name={user.fullName} src={assetUrl(user.profilePicture)} />
         {showName && <span className="hidden text-sm font-semibold text-text-primary sm:inline">{firstName}</span>}
         <ChevronIcon className={cn("text-text-secondary transition-transform", isOpen && "rotate-180")} />
       </button>
@@ -64,7 +67,7 @@ export function UserMenu({ showName = true, className }: { showName?: boolean; c
           className="absolute right-0 top-full z-50 mt-2 w-64 overflow-hidden rounded-2xl border border-border bg-surface shadow-lifted"
         >
           <div className="flex items-center gap-3 border-b border-border px-4 py-3.5">
-            <Avatar name={user.fullName} />
+            <Avatar name={user.fullName} src={assetUrl(user.profilePicture)} />
             <div className="min-w-0">
               <p className="truncate text-sm font-semibold text-text-primary">{user.fullName}</p>
               <p className="truncate text-xs text-text-secondary">{user.email}</p>
@@ -80,6 +83,11 @@ export function UserMenu({ showName = true, className }: { showName?: boolean; c
             <MenuLink href={roleHomePath(user.role)} icon={<GridIcon />} onSelect={close}>
               Dashboard
             </MenuLink>
+            {requestsPath && (
+              <MenuLink href={requestsPath} icon={<GridIcon />} onSelect={close}>
+                {user.role === UserRole.STUDENT ? "My requests" : "Student requests"}
+              </MenuLink>
+            )}
             <MenuLink href="/account/profile" icon={<UserIcon />} onSelect={close}>
               My profile
             </MenuLink>
@@ -129,7 +137,12 @@ function MenuLink({
   );
 }
 
-function Avatar({ name }: { name: string }) {
+function Avatar({ name, src }: { name: string; src?: string }) {
+  if (src)
+    return (
+      // eslint-disable-next-line @next/next/no-img-element -- uploads live on the API origin, not next/image's
+      <img src={src} alt="" className="h-9 w-9 shrink-0 rounded-full object-cover" />
+    );
   return (
     <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-brand-secondary-light text-sm font-bold text-brand-primary">
       {name.trim()[0]?.toUpperCase() ?? "U"}

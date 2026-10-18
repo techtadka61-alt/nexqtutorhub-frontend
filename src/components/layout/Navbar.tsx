@@ -10,6 +10,8 @@ import { TopBar } from "@/components/layout/TopBar";
 import { UserMenu } from "@/components/layout/UserMenu";
 import { useAuth, roleHomePath } from "@/context/auth-context";
 import { cn } from "@/lib/cn";
+import { requestsPathFor } from "@/lib/tuition-request";
+import { UserRole } from "@/types/api";
 
 const NAV_LINKS = [
   { href: "/", label: "Home" },
@@ -38,7 +40,7 @@ function NavbarContent({ pathname }: { pathname: string }) {
   return (
     <header className="sticky top-0 z-50 border-b border-border/80 bg-surface/90 backdrop-blur">
       <Container className="flex h-20 items-center justify-between py-3">
-        <Logo variant="horizontal" priority className="h-10 w-auto sm:h-12" />
+        <Logo variant="horizontal" priority className="h-8 w-auto sm:h-9" />
 
         <nav className="hidden items-center gap-1 lg:flex">
           {NAV_LINKS.map((link) => {
@@ -66,22 +68,24 @@ function NavbarContent({ pathname }: { pathname: string }) {
               <Button href="/login" size="sm" variant="ghost">
                 Sign in
               </Button>
-              <Button href="/find-tutors" size="sm" variant="primary">
+              <Button href="/request-tutor" size="sm" variant="primary">
                 Find a tutor
               </Button>
             </>
           )}
         </div>
 
-        <button
-          type="button"
-          className="inline-flex h-10 w-10 items-center justify-center rounded-full text-text-primary lg:hidden"
-          onClick={() => setIsOpen((v) => !v)}
-          aria-label="Toggle menu"
-          aria-expanded={isOpen}
-        >
-          {isOpen ? <CloseIcon /> : <MenuIcon />}
-        </button>
+        <div className="flex items-center gap-1 lg:hidden">
+          <button
+            type="button"
+            className="inline-flex h-10 w-10 items-center justify-center rounded-full text-text-primary"
+            onClick={() => setIsOpen((v) => !v)}
+            aria-label="Toggle menu"
+            aria-expanded={isOpen}
+          >
+            {isOpen ? <CloseIcon /> : <MenuIcon />}
+          </button>
+        </div>
       </Container>
 
       {isOpen && (
@@ -111,6 +115,11 @@ function NavbarContent({ pathname }: { pathname: string }) {
                   <Button href={roleHomePath(user.role)} variant="primary">
                     Dashboard
                   </Button>
+                  {requestsPathFor(user.role) && (
+                    <Button href={requestsPathFor(user.role)!} variant="outline">
+                      {user.role === UserRole.STUDENT ? "My requests" : "Student requests"}
+                    </Button>
+                  )}
                   <Button href="/account/profile" variant="outline">
                     My profile
                   </Button>
@@ -127,7 +136,7 @@ function NavbarContent({ pathname }: { pathname: string }) {
                   <Button href="/login" variant="outline">
                     Sign in
                   </Button>
-                  <Button href="/find-tutors" variant="primary">
+                  <Button href="/request-tutor" variant="primary">
                     Find a tutor
                   </Button>
                 </>

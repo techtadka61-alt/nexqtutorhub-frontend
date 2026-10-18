@@ -1,16 +1,19 @@
 import { forwardRef, useId } from "react";
 import type { TextareaHTMLAttributes } from "react";
 import { cn } from "@/lib/cn";
+import { FieldLabel } from "@/components/ui/FieldLabel";
 
 export interface TextareaProps extends TextareaHTMLAttributes<HTMLTextAreaElement> {
   label?: string;
   error?: string;
   hint?: string;
   containerClassName?: string;
+  /** Marks the label "(optional)". Required fields are marked from `required`. */
+  optional?: boolean;
 }
 
 export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(function Textarea(
-  { label, error, hint, className, containerClassName, id, rows = 4, ...rest },
+  { label, error, hint, className, containerClassName, id, rows = 4, optional, ...rest },
   ref,
 ) {
   const generatedId = useId();
@@ -19,9 +22,9 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(function 
   return (
     <div className={cn("flex flex-col gap-1.5", containerClassName)}>
       {label && (
-        <label htmlFor={textareaId} className="text-sm font-medium text-text-primary">
+        <FieldLabel htmlFor={textareaId} required={rest.required} optional={optional}>
           {label}
-        </label>
+        </FieldLabel>
       )}
       <textarea
         ref={ref}

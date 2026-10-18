@@ -1,6 +1,7 @@
 import { forwardRef, useId } from "react";
 import type { SelectHTMLAttributes } from "react";
 import { cn } from "@/lib/cn";
+import { FieldLabel } from "@/components/ui/FieldLabel";
 
 export interface SelectOption {
   value: string;
@@ -16,10 +17,12 @@ export interface SelectProps extends SelectHTMLAttributes<HTMLSelectElement> {
   options: SelectOption[];
   placeholder?: string;
   containerClassName?: string;
+  /** Marks the label "(optional)". Required fields are marked from `required`. */
+  optional?: boolean;
 }
 
 export const Select = forwardRef<HTMLSelectElement, SelectProps>(function Select(
-  { label, labelAsPlaceholder, error, hint, options, placeholder: placeholderProp, className, containerClassName, id, ...rest },
+  { label, labelAsPlaceholder, error, hint, options, placeholder: placeholderProp, className, containerClassName, id, optional, ...rest },
   ref,
 ) {
   const generatedId = useId();
@@ -29,19 +32,16 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps>(function Select
   return (
     <div className={cn("flex flex-col gap-1.5", containerClassName)}>
       {label && (
-        <label
-          htmlFor={selectId}
-          className={cn("text-sm font-medium text-text-primary", labelAsPlaceholder && "sr-only")}
-        >
+        <FieldLabel htmlFor={selectId} required={rest.required} optional={optional} className={cn(labelAsPlaceholder && "sr-only")}>
           {label}
-        </label>
+        </FieldLabel>
       )}
       <div className="relative">
         <select
           ref={ref}
           id={selectId}
           className={cn(
-            "h-13 w-full appearance-none rounded-xl border bg-surface px-4 pr-10 text-sm text-text-primary transition-colors focus-ring invalid:text-text-secondary/70",
+            "h-13 w-full rounded-xl border bg-surface px-4 text-sm text-text-primary transition-colors focus-ring invalid:text-text-secondary/70",
             error ? "border-error" : "border-border focus:border-brand-secondary",
             className,
           )}
@@ -59,17 +59,6 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps>(function Select
             </option>
           ))}
         </select>
-        <svg
-          className="pointer-events-none absolute right-3.5 top-1/2 -translate-y-1/2 text-text-secondary"
-          width="16"
-          height="16"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2"
-        >
-          <path d="M6 9l6 6 6-6" />
-        </svg>
       </div>
       {error ? (
         <p className="text-xs font-medium text-error">{error}</p>

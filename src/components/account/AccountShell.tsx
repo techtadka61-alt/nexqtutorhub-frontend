@@ -5,9 +5,11 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Logo } from "@/components/ui/Logo";
 import { UserMenu } from "@/components/layout/UserMenu";
+import { NotificationBell } from "@/components/layout/NotificationBell";
 import { useAuth } from "@/context/auth-context";
 import { UserRole } from "@/types/api";
 import { cn } from "@/lib/cn";
+import { ADMIN_PANEL_URL } from "@/lib/config";
 
 interface NavItem {
   href: string;
@@ -16,10 +18,20 @@ interface NavItem {
 }
 
 function navFor(role: UserRole): NavItem[] {
+  if (role === UserRole.SUPER_ADMIN)
+    return [
+      { href: ADMIN_PANEL_URL, label: "Admin panel", icon: <HomeIcon /> },
+      { href: "/account/profile", label: "My profile", icon: <UserIcon /> },
+    ];
   const base = role === UserRole.STUDENT ? "/account/student" : "/account/tutor";
   return [
     { href: base, label: "Overview", icon: <HomeIcon /> },
-    ...(role === UserRole.STUDENT ? [{ href: "/find-tutors", label: "Find tutors", icon: <SearchIcon /> }] : []),
+    ...(role === UserRole.STUDENT
+      ? [
+          { href: "/my-requests", label: "My requests", icon: <InboxIcon /> },
+          { href: "/find-tutors", label: "Find tutors", icon: <SearchIcon /> },
+        ]
+      : [{ href: "/account/tutor/requests", label: "Student requests", icon: <InboxIcon /> }]),
     { href: "/account/profile", label: "My profile", icon: <UserIcon /> },
   ];
 }
@@ -106,6 +118,7 @@ export function AccountShell({ children }: { children: React.ReactNode }) {
                 Email not verified
               </span>
             )}
+            <NotificationBell />
             <UserMenu />
           </div>
         </header>
@@ -120,6 +133,15 @@ function HomeIcon() {
   return (
     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
       <path d="M4 11l8-7 8 7v8a2 2 0 01-2 2h-3v-6H9v6H6a2 2 0 01-2-2v-8Z" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+function InboxIcon() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      <path d="M4 13l2.5-7.5A2 2 0 018.4 4h7.2a2 2 0 011.9 1.5L20 13" strokeLinejoin="round" />
+      <path d="M4 13v5a2 2 0 002 2h12a2 2 0 002-2v-5h-5l-1 2h-4l-1-2H4Z" strokeLinejoin="round" />
     </svg>
   );
 }

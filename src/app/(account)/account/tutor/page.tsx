@@ -9,26 +9,11 @@ import { tutorProfileApi } from "@/lib/api/profile";
 import { tuitionApplicationsApi } from "@/lib/api/tuition-applications";
 import type { TuitionApplication, TuitionApplicationStatus, TutorProfile } from "@/types/api";
 import { ApiError } from "@/lib/api-client";
+import { tutorCompletion } from "@/lib/profile-completion";
 import { assetUrl } from "@/lib/config";
 
-const FIELDS: (keyof TutorProfile)[] = [
-  "city",
-  "area",
-  "teachingExperienceYears",
-  "highestQualification",
-  "subjects",
-  "classes",
-  "teachingMode",
-  "fees",
-];
-
 function completionPercent(profile: TutorProfile | null): number {
-  if (!profile) return 0;
-  const filled = FIELDS.filter((key) => {
-    const value = profile[key];
-    return Array.isArray(value) ? value.length > 0 : value !== undefined && value !== null && value !== "";
-  });
-  return Math.round((filled.length / FIELDS.length) * 100);
+  return profile ? tutorCompletion(profile).percent : 0;
 }
 
 const VERIFICATION_COPY: Record<string, { label: string; variant: "success" | "warning" | "error" }> = {
@@ -162,9 +147,25 @@ export default function TutorOverviewPage() {
       <Card>
         <CardBody className="flex flex-col items-start gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div>
+            <h2 className="text-base font-semibold text-text-primary">Students looking for a tutor</h2>
+            <p className="mt-1 text-sm text-text-secondary">
+              {profile?.verificationStatus === "verified"
+                ? "Browse requests posted by students and apply to the ones that fit you."
+                : "Once you're verified, you can browse requests posted by students and apply to them."}
+            </p>
+          </div>
+          <Button href="/account/tutor/requests" variant="secondary">
+            Student requests
+          </Button>
+        </CardBody>
+      </Card>
+
+      <Card>
+        <CardBody className="flex flex-col items-start gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div>
             <h2 className="text-base font-semibold text-text-primary">Want more visibility?</h2>
             <p className="mt-1 text-sm text-text-secondary">
-              A verified badge and a wider travel radius help you appear in more student searches.
+              A verified badge and an up-to-date location help you appear in more student searches.
             </p>
           </div>
           <Button href="/for-tutors" variant="secondary">

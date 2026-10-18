@@ -2,16 +2,19 @@ import Image from "next/image";
 import type { ReactNode } from "react";
 import { Container } from "@/components/ui/Container";
 import { cn } from "@/lib/cn";
+import { PLATFORM_STATS } from "@/lib/platform-stats";
 import msmeLogo from "@/assets/images/msme-logo.png";
 import nexqiraLogo from "@/assets/images/nexqira.jpeg";
 import classroomIllustration from "@/assets/images/tutors-teach-cutout.png";
 import reviewsIllustration from "@/assets/images/review-cutout.png";
+import tutorIllustration from "@/assets/images/Tutor-Apply.png";
 
-// Placeholder figures — replace with real numbers before launch.
-const STUDENTS_TAUGHT = "1100+";
-const FIVE_STAR_REVIEWS = "1000+";
+const { studentsTaught: STUDENTS_TAUGHT, verifiedTutors: VERIFIED_TUTORS, fiveStarReviews: FIVE_STAR_REVIEWS } = PLATFORM_STATS;
 
-/** Trust highlights (MSME recognition, parent company, traction). Shared across marketing pages. */
+/**
+ * Trust highlights (MSME recognition, parent company, traction). Shared across the marketing pages — Home, About,
+ * How it works, For tutors and Contact — always placed just before the closing call-to-action.
+ */
 export function HighlightsSection() {
   return (
     <section className="relative overflow-hidden py-20">
@@ -24,7 +27,7 @@ export function HighlightsSection() {
           <span className="font-script text-4xl font-bold text-warning sm:text-5xl">@nextutorhub</span>
         </h2>
 
-        <div className="mx-auto mt-10 grid max-w-5xl grid-cols-2 gap-4 lg:grid-cols-4">
+        <div className="mx-auto mt-10 grid max-w-6xl grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
           <HighlightCard className="border-warning/40 bg-warning/10">
             <p className="font-display text-base font-bold text-brand-primary">NexTutorHub</p>
             <p className="text-xs font-medium text-text-primary">Identified &amp; supported by</p>
@@ -39,10 +42,6 @@ export function HighlightsSection() {
             />
           </HighlightCard>
 
-          <HighlightCard className="border-black bg-black">
-            <p className="font-display text-lg font-bold text-white">A Product by</p>
-            <Image src={nexqiraLogo} alt="Nexqira" sizes="112px" className="mt-auto h-28 w-auto" />
-          </HighlightCard>
 
           <HighlightCard className="border-border bg-surface">
             <p className="font-display text-2xl font-bold text-brand-primary">{STUDENTS_TAUGHT}</p>
@@ -54,8 +53,23 @@ export function HighlightsSection() {
               className="mt-auto h-24 w-auto"
             />
           </HighlightCard>
+          <HighlightCard className="border-black bg-black">
+            <p className="font-display text-lg font-bold text-white">A Product by</p>
+            <Image src={nexqiraLogo} alt="Nexqira" sizes="112px" className="mt-auto h-28 w-auto" />
+          </HighlightCard>
 
-          <HighlightCard className="border-warning/40 bg-warning/10">
+          <HighlightCard className="border-brand-secondary/30 bg-brand-secondary-light/50">
+            <p className="font-display text-2xl font-bold text-brand-primary">{VERIFIED_TUTORS}</p>
+            <p className="text-sm font-medium text-text-primary">Verified Tutors</p>
+            <Image
+              src={tutorIllustration}
+              alt="A tutor at her laptop with subject cards around her"
+              sizes="160px"
+              className="mt-auto h-24 w-auto mix-blend-multiply"
+            />
+          </HighlightCard>
+
+          <HighlightCard className="col-span-2 border-warning/40 bg-warning/10 sm:col-span-1">
             <p className="font-display text-2xl font-bold text-brand-primary">{FIVE_STAR_REVIEWS}</p>
             <p className="text-sm font-medium text-text-primary">Five-Star Reviews</p>
             <Image

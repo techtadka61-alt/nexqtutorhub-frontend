@@ -27,7 +27,7 @@ const REASONS = [
   {
     title: "Local & Nearby",
     description:
-      "Search by city and travel radius to find tutors who can genuinely reach you for home tuition, or teach online from anywhere.",
+      "Search by city, or by distance from where you are, to find tutors who can genuinely reach you for home tuition, or teach online from anywhere.",
     icon: <PinIcon />,
     tint: "bg-info text-white",
   },

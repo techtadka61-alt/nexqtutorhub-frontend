@@ -8,24 +8,10 @@ import { Button } from "@/components/ui/Button";
 import { studentProfileApi } from "@/lib/api/profile";
 import type { StudentProfile } from "@/types/api";
 import { ApiError } from "@/lib/api-client";
-
-const FIELDS: (keyof StudentProfile)[] = [
-  "city",
-  "area",
-  "studentClass",
-  "board",
-  "subjects",
-  "preferredTuitionMode",
-  "budget",
-];
+import { studentCompletion } from "@/lib/profile-completion";
 
 function completionPercent(profile: StudentProfile | null): number {
-  if (!profile) return 0;
-  const filled = FIELDS.filter((key) => {
-    const value = profile[key];
-    return Array.isArray(value) ? value.length > 0 : value !== undefined && value !== null && value !== "";
-  });
-  return Math.round((filled.length / FIELDS.length) * 100);
+  return profile ? studentCompletion(profile).percent : 0;
 }
 
 export default function StudentOverviewPage() {
@@ -108,12 +94,17 @@ export default function StudentOverviewPage() {
           <div>
             <h2 className="text-base font-semibold text-text-primary">Looking for a tutor?</h2>
             <p className="mt-1 text-sm text-text-secondary">
-              Browse verified tutors near you, filtered by subject, class and budget.
+              Post your requirement and verified tutors will apply to you — or browse tutors near you yourself.
             </p>
           </div>
-          <Button href="/find-tutors" variant="secondary">
-            Browse matched tutors
-          </Button>
+          <div className="flex flex-col gap-2 sm:flex-row">
+            <Button href="/my-requests" variant="secondary">
+              My requests
+            </Button>
+            <Button href="/find-tutors" variant="outline">
+              Browse tutors
+            </Button>
+          </div>
         </CardBody>
       </Card>
     </div>

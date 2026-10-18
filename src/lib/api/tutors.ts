@@ -1,5 +1,5 @@
 import { api } from "../api-client";
-import type { TuitionMode, TutorSearchResult } from "@/types/api";
+import type { TuitionMode, TutorDetail, TutorSearchResult } from "@/types/api";
 
 export type TutorSearchSort = "rating" | "feesAsc" | "feesDesc" | "experience";
 
@@ -42,7 +42,12 @@ function toQueryString(params: object): string {
 
 export const tutorsApi = {
   search: (params: TutorSearchParams = {}) =>
-    api.get<PaginatedResult<TutorSearchResult>>(`/tutors/search${toQueryString(params)}`, { auth: false }),
+    // nearbyTotal: tutors within range ignoring the other filters (only for lat/lng searches).
+    api.get<PaginatedResult<TutorSearchResult> & { nearbyTotal?: number }>(`/tutors/search${toQueryString(params)}`, {
+      auth: false,
+    }),
+  /** Full profile for a signed-in student (contact number for verified tutors, distance from the saved location). */
+  details: (id: string) => api.get<{ message: string; item: TutorDetail }>(`/tutors/${id}/details`),
   guestProfile: (id: string, lat?: number, lng?: number) =>
     api.get<{ message: string; item: TutorSearchResult }>(`/tutors/search/${id}${toQueryString({ lat, lng })}`, {
       auth: false,

@@ -45,3 +45,12 @@ export const QUALIFICATION_OPTIONS = [
   "Ph.D.",
   "Other",
 ];
+
+/** Languages a tutor can teach in; must match the API's TEACHING_LANGUAGES. */
+export const TEACHING_LANGUAGES = ["Hindi", "English", "Bhojpuri", "Urdu", "Sanskrit", "Bengali", "Punjabi", "Marathi"];
+
+/** Public support contact, shown site-wide (top bar, contact page, footer). */
+export const SUPPORT_EMAIL = "nexqira.online@gmail.com";
+export const SUPPORT_PHONE = "+91 93697 76898";
+/** tel: form of SUPPORT_PHONE. */
+export const SUPPORT_PHONE_HREF = "+919369776898";

@@ -1,6 +1,7 @@
 "use client";
 
 import { cn } from "@/lib/cn";
+import { FieldLabel } from "@/components/ui/FieldLabel";
 import type { AvailabilitySlot, WeekDay } from "@/types/api";
 
 export const WEEK_DAYS: { value: WeekDay; label: string }[] = [
@@ -13,7 +14,7 @@ export const WEEK_DAYS: { value: WeekDay; label: string }[] = [
   { value: "sun", label: "Sun" },
 ];
 
-const DAY_PRESETS: { label: string; days: WeekDay[] }[] = [
+export const DAY_PRESETS: { label: string; days: WeekDay[] }[] = [
   { label: "Weekdays", days: ["mon", "tue", "wed", "thu", "fri"] },
   { label: "Weekends", days: ["sat", "sun"] },
   { label: "All days", days: WEEK_DAYS.map((d) => d.value) },
@@ -40,11 +41,15 @@ export function availabilityError(slots: AvailabilitySlot[]): string | null {
 /** Weekly availability as day chips plus a from/to time range per slot; tutors can add several slots. */
 export function AvailabilityPicker({
   label = "Availability",
+  required,
+  optional,
   hint,
   value,
   onChange,
 }: {
   label?: string;
+  required?: boolean;
+  optional?: boolean;
   hint?: string;
   value: AvailabilitySlot[];
   onChange: (slots: AvailabilitySlot[]) => void;
@@ -60,7 +65,9 @@ export function AvailabilityPicker({
 
   return (
     <fieldset className="flex flex-col gap-3">
-      <legend className="text-sm font-medium text-text-primary">{label}</legend>
+      <FieldLabel as="legend" required={required} optional={optional}>
+        {label}
+      </FieldLabel>
       {hint && <p className="-mt-1 text-xs text-text-secondary">{hint}</p>}
 
       {value.length === 0 && (
@@ -151,7 +158,7 @@ export function AvailabilityPicker({
   );
 }
 
-function TimeSelect({
+export function TimeSelect({
   label,
   value,
   invalid,
@@ -188,7 +195,7 @@ function TimeSelect({
   );
 }
 
-function formatTime(value: string) {
+export function formatTime(value: string) {
   const [hours, minutes] = value.split(":").map(Number);
   return `${hours % 12 || 12}:${String(minutes).padStart(2, "0")} ${hours < 12 ? "AM" : "PM"}`;
 }

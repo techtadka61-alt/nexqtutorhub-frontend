@@ -3,13 +3,26 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Input } from "@/components/ui/Input";
+import { MobileInput } from "@/components/ui/MobileInput";
+import {
+  confirmPasswordError,
+  emailError,
+  mobileError,
+  nameError,
+  PASSWORD_HINT,
+  passwordError,
+} from "@/lib/validation";
 import { Button } from "@/components/ui/Button";
 import { Checkbox } from "@/components/ui/Checkbox";
+import { LocationPicker } from "@/components/location/LocationPicker";
 import { GoogleAuthButton } from "@/components/auth/GoogleAuthButton";
 import { OrDivider } from "@/components/auth/OrDivider";
 import { AuthFooterLink } from "@/components/auth/AuthShell";
 import { authApi } from "@/lib/api/auth";
 import { ApiError } from "@/lib/api-client";
+import { notify } from "@/components/ui/Toast";
+import { NEARBY_RADIUS_KM, type PickedLocation } from "@/lib/geolocation";
+import { UserRole } from "@/types/api";
 
 export type SignupRole = "student" | "tutor";
 
@@ -42,6 +55,22 @@ interface FormState {
   password: string;
   confirmPassword: string;
   termsAccepted: boolean;
+  location?: PickedLocation;
+}
+
+type Field = "fullName" | "email" | "mobileNumber" | "password" | "confirmPassword" | "termsAccepted";
+
+/** Client-side mirror of the API's RegisterStudentDto / RegisterTutorDto rules. */
+function validate(form: FormState): Partial<Record<Field, string>> {
+  const errors: Partial<Record<Field, string | null>> = {
+    fullName: nameError(form.fullName),
+    mobileNumber: mobileError(form.mobileNumber),
+    email: emailError(form.email),
+    password: passwordError(form.password),
+    confirmPassword: confirmPasswordError(form.password, form.confirmPassword),
+    termsAccepted: form.termsAccepted ? null : "Please accept the Terms of Service and Privacy Policy to continue.",
+  };
+  return Object.fromEntries(Object.entries(errors).filter(([, message]) => message)) as Partial<Record<Field, string>>;
 }
 
 const INITIAL_STATE: FormState = {
@@ -53,49 +82,57 @@ const INITIAL_STATE: FormState = {
   termsAccepted: false,
 };
 
-/**
- * Backend validates with class-validator's IsMobilePhone('en-IN'), which rejects spaces/dashes and
- * requires a bare 10-digit number or a +91-prefixed one with no separators. Strip formatting the
- * user naturally types (spaces, dashes) and add +91 when no country code is present.
- */
-function normalizeMobile(value: string): string {
-  const digitsAndPlus = value.trim().replace(/[\s-]/g, "");
-  if (/^\d{10}$/.test(digitsAndPlus)) return `+91${digitsAndPlus}`;
-  return digitsAndPlus;
-}
-
 export function SignupForm({ role }: { role: SignupRole }) {
   const router = useRouter();
   const copy = ROLE_COPY[role];
   const [form, setForm] = useState<FormState>(INITIAL_STATE);
-  const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  // A field's error shows once the user has left it (or tried to submit), then updates live as they type.
+  const [touched, setTouched] = useState<Partial<Record<Field, boolean>>>({});
+  const [submitted, setSubmitted] = useState(false);
+  // Errors returned by the API (e.g. "email already registered"); cleared as soon as that field is edited.
+  const [serverErrors, setServerErrors] = useState<Record<string, string>>({});
+
+  const clientErrors = validate(form);
+
+  function fieldError(field: Field): string | undefined {
+    if (serverErrors[field]) return serverErrors[field];
+    // Confirm password is checked as soon as anything is typed into it, so a mismatch shows immediately.
+    const live = field === "confirmPassword" && form.confirmPassword !== "";
+    return submitted || touched[field] || live ? clientErrors[field] : undefined;
+  }
 
   function update<K extends keyof FormState>(key: K, value: FormState[K]) {
     setForm((prev) => ({ ...prev, [key]: value }));
+    setServerErrors((prev) => {
+      if (!(key in prev)) return prev;
+      const next = { ...prev };
+      delete next[key];
+      return next;
+    });
+  }
+
+  function touch(field: Field) {
+    setTouched((prev) => ({ ...prev, [field]: true }));
   }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    setError(null);
-
-    if (form.password !== form.confirmPassword) {
-      setError("Password and confirm password must match.");
-      return;
-    }
-    if (!form.termsAccepted) {
-      setError("Please accept the Terms of Service and Privacy Policy to continue.");
-      return;
-    }
+    setSubmitted(true);
+    if (Object.keys(clientErrors).length) return;
 
     setIsSubmitting(true);
-    const payload = { ...form, mobileNumber: normalizeMobile(form.mobileNumber) };
+    // The API stores Indian mobile numbers as the bare 10 digits.
+    const payload = { ...form, fullName: form.fullName.trim(), email: form.email.trim().toLowerCase() };
     try {
       const register = role === "student" ? authApi.registerStudent : authApi.registerTutor;
-      await register(payload);
+      const res = await register(payload);
+      notify.success(res.message);
       router.push(`/verify-email?email=${encodeURIComponent(form.email)}`);
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : "Something went wrong. Please try again.");
+      notify.error(err);
+      // Field errors also go under their inputs, so the user sees exactly what to fix.
+      if (err instanceof ApiError) setServerErrors(err.fieldErrors);
     } finally {
       setIsSubmitting(false);
     }
@@ -108,35 +145,30 @@ export function SignupForm({ role }: { role: SignupRole }) {
         <p className="mt-1.5 text-sm text-text-secondary">{copy.subtitle}</p>
       </div>
 
-      <GoogleAuthButton />
+      <GoogleAuthButton mode="signup" defaultRole={role === "tutor" ? UserRole.TUTOR : UserRole.STUDENT} />
       <OrDivider />
 
-      <form onSubmit={handleSubmit} className="flex flex-col gap-5">
-        {error && (
-          <div className="rounded-xl border border-error/30 bg-error/5 px-4 py-3 text-sm text-error">
-            {error}
-          </div>
-        )}
-
+      <form onSubmit={handleSubmit} className="flex flex-col gap-5" noValidate>
         <div className="grid gap-5 sm:grid-cols-2 sm:gap-x-4">
           <Input
             label="Full name"
             autoComplete="name"
             labelAsPlaceholder
             required
-            minLength={2}
             value={form.fullName}
             onChange={(e) => update("fullName", e.target.value)}
+            onBlur={() => touch("fullName")}
+            error={fieldError("fullName")}
           />
 
-          <Input
+          <MobileInput
             label="Mobile number"
-            type="tel"
-            autoComplete="tel"
             labelAsPlaceholder
             required
             value={form.mobileNumber}
-            onChange={(e) => update("mobileNumber", e.target.value)}
+            onValueChange={(value) => update("mobileNumber", value)}
+            onBlur={() => touch("mobileNumber")}
+            error={fieldError("mobileNumber")}
           />
 
           <Input
@@ -147,19 +179,22 @@ export function SignupForm({ role }: { role: SignupRole }) {
             required
             value={form.email}
             onChange={(e) => update("email", e.target.value)}
+            onBlur={() => touch("email")}
+            error={fieldError("email")}
             containerClassName="sm:col-span-2"
           />
 
           <Input
             label="Password"
-            hint="At least 8 characters, with letters & numbers"
+            hint={PASSWORD_HINT}
             type="password"
             autoComplete="new-password"
             labelAsPlaceholder
             required
-            minLength={8}
             value={form.password}
             onChange={(e) => update("password", e.target.value)}
+            onBlur={() => touch("password")}
+            error={fieldError("password")}
           />
 
           <Input
@@ -170,22 +205,38 @@ export function SignupForm({ role }: { role: SignupRole }) {
             required
             value={form.confirmPassword}
             onChange={(e) => update("confirmPassword", e.target.value)}
+            onBlur={() => touch("confirmPassword")}
+            error={fieldError("confirmPassword")}
           />
         </div>
+
+        <LocationPicker
+          optional
+          title={role === "tutor" ? "Where can you provide home tuition?" : "Where do you need home tuition?"}
+          value={form.location}
+          onChange={(location) => update("location", location)}
+          description={
+            role === "tutor"
+              ? `Lets students within ${NEARBY_RADIUS_KM} km find you. Never shown publicly — you can also add it later in your profile.`
+              : `Lets us show you tutors within ${NEARBY_RADIUS_KM} km. Never shown publicly — you can also add it later in your profile.`
+          }
+        />
 
         <Checkbox
           checked={form.termsAccepted}
           onChange={(e) => update("termsAccepted", e.target.checked)}
+          error={fieldError("termsAccepted")}
           label={
             <span>
               I agree to the{" "}
-              <a href="/terms" className="font-semibold text-brand-secondary hover:text-brand-primary">
+              <a href="/terms" target="_blank" rel="noopener" className="font-semibold text-brand-secondary hover:text-brand-primary">
                 Terms of Service
               </a>{" "}
               and{" "}
-              <a href="/privacy" className="font-semibold text-brand-secondary hover:text-brand-primary">
+              <a href="/privacy" target="_blank" rel="noopener" className="font-semibold text-brand-secondary hover:text-brand-primary">
                 Privacy Policy
               </a>
+              <span className="text-error"> *</span>
             </span>
           }
         />

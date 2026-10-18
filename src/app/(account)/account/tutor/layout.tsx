@@ -1,9 +1,7 @@
 import { ProtectedRoute } from "@/components/account/ProtectedRoute";
 import { UserRole } from "@/types/api";
 
-const ALLOW = [UserRole.TUTOR];
-
-/** Tutor dashboard only: any other signed-in role is sent to its own account home. */
-export default function TutorAccountLayout({ children }: LayoutProps<"/account/tutor">) {
-  return <ProtectedRoute allow={ALLOW}>{children}</ProtectedRoute>;
+/** Everything under /account/tutor is for tutors only; other roles get an explanation instead. */
+export default function TutorAccountLayout({ children }: { children: React.ReactNode }) {
+  return <ProtectedRoute allow={[UserRole.TUTOR]}>{children}</ProtectedRoute>;
 }

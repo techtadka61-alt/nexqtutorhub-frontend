@@ -1,7 +1,10 @@
 import type { StudentProfile } from "@/types/api";
 
-/** Where a student fills in their learning requirement; `setup=requirement` turns on the guided first-run mode. */
-export const REQUIREMENT_SETUP_PATH = "/account/profile?setup=requirement";
+/**
+ * Where a student without a requirement is sent: the public "Find a tutor" form, which posts a tuition request
+ * and fills these profile fields in. (The profile page's `?setup=requirement` mode still works if linked directly.)
+ */
+export const REQUIREMENT_SETUP_PATH = "/request-tutor";
 
 type RequirementFields = Pick<StudentProfile, "studentClass" | "subjects" | "preferredTuitionMode" | "city">;
 

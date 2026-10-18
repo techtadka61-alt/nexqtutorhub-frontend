@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/Button";
 import { Logo } from "@/components/ui/Logo";
@@ -8,6 +8,14 @@ import { authApi } from "@/lib/api/auth";
 import { ApiError } from "@/lib/api-client";
 
 type Status = "idle" | "verifying" | "success" | "error";
+
+/** localStorage key used to tell the signup tab ("Check your inbox") that the link was opened in another tab. */
+const VERIFIED_SIGNAL_KEY = "nth_email_verified";
+const REDIRECT_DELAY_MS = 2000;
+
+function loginUrl(email: string | null) {
+  return `/login?verified=1${email ? `&email=${encodeURIComponent(email)}` : ""}`;
+}
 
 export function VerifyEmailPanel() {
   const router = useRouter();
@@ -19,16 +27,43 @@ export function VerifyEmailPanel() {
   const [message, setMessage] = useState<string | null>(null);
   const [resendState, setResendState] = useState<"idle" | "sending" | "sent">("idle");
 
+  // The token is single-use: React Strict Mode runs effects twice in development, and a second call would
+  // fail with "invalid link" and overwrite the success state.
+  const requested = useRef(false);
   useEffect(() => {
-    if (!token) return;
+    if (!token || requested.current) return;
+    requested.current = true;
     authApi
       .verifyEmail(token)
-      .then(() => setStatus("success"))
+      .then(() => {
+        setStatus("success");
+        try {
+          window.localStorage.setItem(VERIFIED_SIGNAL_KEY, JSON.stringify({ email, at: Date.now() }));
+        } catch {}
+      })
       .catch((err) => {
         setStatus("error");
         setMessage(err instanceof ApiError ? err.message : "This verification link is invalid or expired.");
       });
-  }, [token]);
+  }, [token, email]);
+
+  // Verified: go straight to sign-in in this tab.
+  useEffect(() => {
+    if (status !== "success") return;
+    const timer = setTimeout(() => router.replace(loginUrl(email)), REDIRECT_DELAY_MS);
+    return () => clearTimeout(timer);
+  }, [status, email, router]);
+
+  // The "Check your inbox" tab left open after signup: when the link is opened in another tab of this
+  // browser, move this tab to sign-in too.
+  useEffect(() => {
+    if (token) return;
+    function onStorage(event: StorageEvent) {
+      if (event.key === VERIFIED_SIGNAL_KEY && event.newValue) router.replace(loginUrl(email));
+    }
+    window.addEventListener("storage", onStorage);
+    return () => window.removeEventListener("storage", onStorage);
+  }, [token, email, router]);
 
   async function handleResend() {
     if (!email) return;
@@ -57,8 +92,12 @@ export function VerifyEmailPanel() {
         icon={<CheckCircleIcon />}
         tone="success"
         title="Email verified"
-        description="Your email has been verified successfully. You can now sign in to your account."
-        action={<Button size="lg" pill={false} onClick={() => router.push("/login")}>Continue to sign in</Button>}
+        description="Your email has been verified successfully. Taking you to sign in…"
+        action={
+          <Button size="lg" pill={false} onClick={() => router.replace(loginUrl(email))}>
+            Continue to sign in
+          </Button>
+        }
       />
     );
   }

@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { MultiSelectChips } from "@/components/ui/MultiSelectChips";
@@ -9,15 +8,14 @@ import { TutorCard } from "@/components/students/TutorCard";
 import { ApiError } from "@/lib/api-client";
 import { studentProfileApi } from "@/lib/api/profile";
 import { tutorsApi, type TutorSearchSort } from "@/lib/api/tutors";
-import { BOARD_OPTIONS, CLASS_OPTIONS, SUBJECT_OPTIONS } from "@/lib/constants";
+import { useCatalog } from "@/hooks/useCatalog";
 import { cn } from "@/lib/cn";
+import { fromGeoPoint, NEARBY_RADIUS_KM } from "@/lib/geolocation";
 import { missingRequirement, REQUIREMENT_SETUP_PATH } from "@/lib/student-requirement";
 import { compatibility, type MatchCriteria } from "@/lib/tutor-match";
 import type { StudentProfile, TutorSearchResult } from "@/types/api";
 
 const PAGE_SIZE = 12;
-/** Server-side radius for "near me" searches (TutorsService SEARCH_RADIUS_KM). */
-const NEARBY_RADIUS_KM = 20;
 
 type ModeFilter = "any" | "home" | "online";
 
@@ -58,8 +56,17 @@ const SORT_OPTIONS: { value: TutorSearchSort; label: string }[] = [
   { value: "experience", label: "Most experienced" },
 ];
 
-/** The student's saved requirement, as search filters. */
-function filtersFrom(profile: StudentProfile | null): Filters {
+/**
+ * What the listing opens with: only the tuition mode. Every tutor within range shows up straight away, nearest
+ * first; the saved requirement ranks them (match %) instead of hiding them, so the student never has to search
+ * or clear filters to see who is nearby.
+ */
+function initialFilters(profile: StudentProfile | null): Filters {
+  return { ...EMPTY_FILTERS, mode: requirementFilters(profile).mode };
+}
+
+/** The student's saved requirement, as search filters ("Match my requirement"). */
+function requirementFilters(profile: StudentProfile | null): Filters {
   if (!profile) return EMPTY_FILTERS;
   const mode =
     profile.preferredTuitionMode === "home" || profile.preferredTuitionMode === "online"
@@ -85,17 +92,18 @@ function toNumber(value: string) {
 type Coords = { lat: number; lng: number };
 
 /**
- * Tutor listing for a signed-in student, pre-filtered by their saved requirement (location, subjects,
- * class, board, mode, budget). Students without a requirement are sent to fill it in first. Filters can be
- * adjusted here without changing the saved profile.
+ * Tutor listing for a signed-in student. It opens on every tutor within NEARBY_RADIUS_KM of the student's saved
+ * location, nearest first, with no searching needed; the saved requirement (subjects, class, board, budget)
+ * scores each tutor's fit. Filters can narrow the list without changing the saved profile.
  */
 export function FindTutors() {
-  const router = useRouter();
+  const catalog = useCatalog();
   const [profile, setProfile] = useState<StudentProfile | null>(null);
   const [profileLoaded, setProfileLoaded] = useState(false);
   const [filters, setFilters] = useState<Filters>(EMPTY_FILTERS);
   const [coords, setCoords] = useState<Coords | null>(null);
-  const [locating, setLocating] = useState(false);
+  // Tutors within range ignoring the other filters, so an empty result can say "nearby but not matching".
+  const [nearbyTotal, setNearbyTotal] = useState<number | undefined>();
   const [locationError, setLocationError] = useState<string | null>(null);
   const [tutors, setTutors] = useState<TutorSearchResult[]>([]);
   const [total, setTotal] = useState(0);
@@ -111,17 +119,17 @@ export function FindTutors() {
     studentProfileApi
       .getMine()
       .then((res) => {
-        if (missingRequirement(res.item).length) {
-          router.replace(REQUIREMENT_SETUP_PATH);
-          return;
-        }
         setProfile(res.item);
-        setFilters(filtersFrom(res.item));
+        setFilters(initialFilters(res.item));
+        // Distance search starts from the location the student confirmed on the map (profile), not a fresh
+        // browser fix: laptop geolocation is often kilometres off.
+        const saved = fromGeoPoint(res.item.location);
+        if (saved) setCoords(saved);
         setProfileLoaded(true);
       })
       // Can't read the requirement: still show the full listing rather than a dead end.
       .catch(() => setProfileLoaded(true));
-  }, [router]);
+  }, []);
 
   const nearMe = !!coords && filters.mode !== "online";
 
@@ -159,6 +167,7 @@ export function FindTutors() {
           if (id !== requestId.current) return;
           setTutors(res.items);
           setTotal(res.pagination.total);
+          setNearbyTotal(res.nearbyTotal);
           setPage(1);
         })
         .catch((err) => {
@@ -194,34 +203,28 @@ export function FindTutors() {
   function toggleNearMe() {
     setLocationError(null);
     if (coords) return setCoords(null);
-    if (!navigator.geolocation) return setLocationError("Your browser can't share its location.");
-    setLocating(true);
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        setCoords({ lat: position.coords.latitude, lng: position.coords.longitude });
-        setLocating(false);
-      },
-      () => {
-        setLocationError("Couldn't get your location. Allow location access and try again.");
-        setLocating(false);
-      },
-      { enableHighAccuracy: true, timeout: 10000 },
-    );
+    const saved = fromGeoPoint(profile?.location);
+    if (!saved) return setLocationError("Set where you need home tuition in your profile to search near you.");
+    setCoords(saved);
   }
 
   function update<K extends keyof Filters>(key: K, value: Filters[K]) {
     setFilters((prev) => ({ ...prev, [key]: value }));
   }
 
+  // Match % uses what the student is filtering for, falling back to their saved requirement.
+  const requirement = requirementFilters(profile);
   const criteria: MatchCriteria = {
-    subjects: filters.subjects,
-    studentClass: filters.studentClass || undefined,
-    board: filters.board || undefined,
+    subjects: filters.subjects.length ? filters.subjects : requirement.subjects,
+    studentClass: filters.studentClass || requirement.studentClass || undefined,
+    board: filters.board || requirement.board || undefined,
     mode: filters.mode,
-    city: filters.city || undefined,
-    area: filters.area || undefined,
-    maxFee: toNumber(filters.maxFee),
+    city: filters.city || requirement.city || undefined,
+    area: filters.area || requirement.area || undefined,
+    maxFee: toNumber(filters.maxFee) ?? toNumber(requirement.maxFee),
   };
+  const missing = profile ? missingRequirement(profile) : [];
+  const needsLocation = !coords && filters.mode !== "online";
   const feeRangeInvalid =
     toNumber(filters.minFee) !== undefined &&
     toNumber(filters.maxFee) !== undefined &&
@@ -236,7 +239,9 @@ export function FindTutors() {
       <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <span className="text-sm font-semibold uppercase tracking-wide text-brand-secondary">Find a tutor</span>
-          <h1 className="mt-2 font-display text-3xl font-bold text-brand-primary sm:text-4xl">Tutors matched for you</h1>
+          <h1 className="mt-2 font-display text-3xl font-bold text-brand-primary sm:text-4xl">
+            {nearMe ? `Tutors within ${NEARBY_RADIUS_KM} km of you` : "Tutors matched for you"}
+          </h1>
           <p className="mt-2 max-w-2xl text-text-secondary">
             {profile ? requirementSummary(profile) : "Showing tutors across NexTutorHub."}
           </p>
@@ -245,6 +250,28 @@ export function FindTutors() {
           Edit my requirement
         </Button>
       </div>
+
+      {needsLocation && (
+        <div className="flex flex-col gap-3 rounded-2xl border border-warning/40 bg-warning/5 px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
+          <p className="text-sm text-text-primary">
+            <span className="font-semibold">Add where you need tuition</span> to see every tutor within {NEARBY_RADIUS_KM} km of
+            you automatically. Until then, tutors from across NexTutorHub are shown.
+          </p>
+          <Button href="/account/profile" size="sm" className="w-fit shrink-0">
+            Set my location
+          </Button>
+        </div>
+      )}
+      {!needsLocation && missing.length > 0 && (
+        <div className="flex flex-col gap-3 rounded-2xl border border-border bg-surface px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
+          <p className="text-sm text-text-secondary">
+            Tell us your class and subjects to see how well each tutor matches you.
+          </p>
+          <Button href={REQUIREMENT_SETUP_PATH} variant="outline" size="sm" className="w-fit shrink-0">
+            Add my requirement
+          </Button>
+        </div>
+      )}
 
       <div className="grid gap-8 lg:grid-cols-[300px_1fr] lg:items-start">
         <button
@@ -268,14 +295,23 @@ export function FindTutors() {
             <button
               type="button"
               onClick={() => {
-                setFilters(filtersFrom(profile));
-                setCoords(null);
+                setFilters(initialFilters(profile));
+                setCoords(fromGeoPoint(profile?.location) ?? null);
               }}
               className="cursor-pointer text-xs font-semibold text-brand-secondary hover:text-brand-primary"
             >
-              Reset to my requirement
+              Show all nearby
             </button>
           </div>
+          {profile && missing.length === 0 && (
+            <button
+              type="button"
+              onClick={() => setFilters(requirementFilters(profile))}
+              className="-mt-3 w-fit cursor-pointer text-xs font-semibold text-brand-secondary hover:text-brand-primary"
+            >
+              Only tutors matching my requirement
+            </button>
+          )}
 
           <fieldset className="flex flex-col gap-2">
             <legend className="text-sm font-medium text-text-primary">Tuition mode</legend>
@@ -304,7 +340,7 @@ export function FindTutors() {
             <button
               type="button"
               onClick={toggleNearMe}
-              disabled={locating || filters.mode === "online"}
+              disabled={filters.mode === "online"}
               aria-pressed={nearMe}
               className={cn(
                 "inline-flex h-11 cursor-pointer items-center justify-center gap-2 rounded-xl border text-sm font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-60",
@@ -314,8 +350,16 @@ export function FindTutors() {
               )}
             >
               <LocateIcon />
-              {locating ? "Locating…" : nearMe ? `Near me · within ${NEARBY_RADIUS_KM} km` : "Use my current location"}
+              {nearMe ? `Near me · within ${NEARBY_RADIUS_KM} km` : "Search near my saved location"}
             </button>
+            {nearMe && (
+              <p className="text-xs text-text-secondary">
+                From: {profile?.locationMeta?.address ?? "your saved tuition location"} ·{" "}
+                <a href="/account/profile" className="font-semibold text-brand-secondary hover:text-brand-primary">
+                  Change
+                </a>
+              </p>
+            )}
             {locationError && <p className="text-xs font-medium text-error">{locationError}</p>}
             <Input
               label="City"
@@ -343,7 +387,7 @@ export function FindTutors() {
           <MultiSelectChips
             label="Subjects"
             hint="Tutors teaching any of these"
-            options={SUBJECT_OPTIONS}
+            options={catalog.subjects}
             value={filters.subjects}
             onChange={(v) => update("subjects", v)}
           />
@@ -352,14 +396,14 @@ export function FindTutors() {
             label="Class"
             value={filters.studentClass}
             anyLabel="Any class"
-            options={CLASS_OPTIONS}
+            options={catalog.classes}
             onChange={(v) => update("studentClass", v)}
           />
           <FilterSelect
             label="Board"
             value={filters.board}
             anyLabel="Any board"
-            options={BOARD_OPTIONS}
+            options={catalog.boards}
             onChange={(v) => update("board", v)}
           />
 
@@ -435,15 +479,21 @@ export function FindTutors() {
             </div>
           ) : !tutors.length ? (
             <div className="flex flex-col items-center gap-3 rounded-2xl border border-dashed border-border bg-surface px-6 py-14 text-center">
-              <h3 className="font-display text-lg font-bold text-brand-primary">No tutors match all your filters</h3>
+              <h3 className="font-display text-lg font-bold text-brand-primary">
+                {nearMe && !nearbyTotal ? `No tutors within ${NEARBY_RADIUS_KM} km yet` : "No tutors match all your filters"}
+              </h3>
               <p className="max-w-md text-sm text-text-secondary">
-                Try removing a subject, widening the fee range, or clearing the area to see more tutors.
+                {nearMe && nearbyTotal
+                  ? `${nearbyTotal} tutor${nearbyTotal === 1 ? " is" : "s are"} within ${NEARBY_RADIUS_KM} km of you, but they don't match your subject, class, board or fee filters. Clear the filters to see them.`
+                  : nearMe
+                    ? "No tutors have set a teaching location near you yet. Try online tuition, or check back soon."
+                    : "Try removing a subject, widening the fee range, or clearing the area to see more tutors."}
               </p>
               <Button
                 variant="outline"
                 onClick={() => {
-                  setFilters(EMPTY_FILTERS);
-                  setCoords(null);
+                  // Distance stays on: clearing the subject/class/fee filters is what reveals nearby tutors.
+                  setFilters({ ...EMPTY_FILTERS, mode: filters.mode === "online" ? EMPTY_FILTERS.mode : filters.mode });
                 }}
               >
                 Clear all filters
