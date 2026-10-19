@@ -6,6 +6,8 @@ import { FindTutors } from "@/components/students/FindTutors";
 export const metadata: Metadata = {
   title: "Find a Tutor",
   description: "Browse tutors matched to your class, subjects, board, location and budget.",
+  // Signed-in students only: crawlers would just see the sign-in redirect.
+  robots: { index: false, follow: false },
 };
 
 export default function FindTutorsPage() {

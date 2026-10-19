@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Logo } from "@/components/ui/Logo";
 import { Container } from "@/components/ui/Container";
 import { SUPPORT_EMAIL, SUPPORT_PHONE, SUPPORT_PHONE_HREF } from "@/lib/constants";
+import { getLocality, localityPath } from "@/lib/seo";
 
 const COLUMNS = [
   {
@@ -12,6 +13,16 @@ const COLUMNS = [
       { href: "/request-tutor", label: "Find a tutor" },
       { href: "/find-tutors", label: "Browse tutors" },
       { href: "/signup/tutor", label: "Become a tutor" },
+    ],
+  },
+  {
+    title: "Home tuition in Sonbhadra",
+    links: [
+      { href: "/home-tuition", label: "All of Sonbhadra" },
+      ...["robertsganj", "obra", "chopan", "renukoot", "anpara", "dudhi"].map((slug) => {
+        const locality = getLocality(slug)!;
+        return { href: localityPath(slug), label: `Tuition in ${locality.name}` };
+      }),
     ],
   },
   {
@@ -36,7 +47,7 @@ const COLUMNS = [
 export function Footer() {
   return (
     <footer className="border-t border-border bg-brand-primary text-white">
-      <Container className="grid gap-12 py-16 lg:grid-cols-[1.4fr_1fr_1fr_1fr]">
+      <Container className="grid gap-12 py-16 sm:grid-cols-2 lg:grid-cols-[1.4fr_1fr_1.1fr_1fr_1fr]">
         <div className="flex flex-col gap-4">
           <Logo variant="horizontal-light" href={false} className="h-9 w-auto" />
           <p className="max-w-sm text-sm leading-6 text-white/70">

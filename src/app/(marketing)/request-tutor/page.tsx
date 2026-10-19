@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { pageOpenGraph } from "@/lib/seo";
 import { FaqSection } from "@/components/marketing/FaqSection";
 import { Container } from "@/components/ui/Container";
 import { RequestTutorForm } from "@/components/students/RequestTutorForm";
@@ -6,9 +7,11 @@ import { ProtectedRoute } from "@/components/account/ProtectedRoute";
 import { UserRole } from "@/types/api";
 
 export const metadata: Metadata = {
-  title: "Find a Tutor — Post your requirement",
+  title: "Post a Tuition Requirement — Get a Home Tutor in Sonbhadra",
   description:
-    "Tell us your class, subjects, location and budget. Verified tutors apply to you, and you choose who to share your contact details with.",
+    "Tell us your class, board, subjects, location and budget. Verified home tutors within 10 km in Sonbhadra apply to you, and you choose. Free, takes a minute.",
+  alternates: { canonical: "/request-tutor" },
+  openGraph: pageOpenGraph("Post a Tuition Requirement — Get a Home Tutor in Sonbhadra", "Tell us your class, board, subjects, location and budget. Verified home tutors within 10 km in Sonbhadra apply to you, and you choose. Free, takes a minute.", "/request-tutor"),
 };
 
 const HOW_IT_WORKS = [

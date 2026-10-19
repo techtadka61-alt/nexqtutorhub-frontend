@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { pageOpenGraph } from "@/lib/seo";
 import { Container } from "@/components/ui/Container";
 import { Button } from "@/components/ui/Button";
 import { TrustBanner } from "@/components/marketing/TrustBanner";
@@ -10,8 +11,11 @@ import { MatchingIllustration } from "@/components/marketing/MatchingIllustratio
 import { ProcessAnimation } from "@/components/process-3d/ProcessAnimation";
 
 export const metadata: Metadata = {
-  title: "How It Works",
-  description: "See how students and tutors connect on NexTutorHub, from requirement to active tuition.",
+  title: "How It Works — Find a Home Tutor in Sonbhadra in 3 Steps",
+  description:
+    "Post your tuition requirement, get applications from verified tutors within 10 km, call them and choose. See how NexTutorHub works for students and tutors in Sonbhadra.",
+  alternates: { canonical: "/how-it-works" },
+  openGraph: pageOpenGraph("How It Works — Find a Home Tutor in Sonbhadra in 3 Steps", "Post your tuition requirement, get applications from verified tutors within 10 km, call them and choose. See how NexTutorHub works for students and tutors in Sonbhadra.", "/how-it-works"),
 };
 
 interface Step {

@@ -58,7 +58,18 @@ export function ComingSoonCities() {
           </span>
           <span className="text-sm font-semibold text-success">Live now</span>
           <span className="text-sm text-text-primary">
-            <strong className="font-semibold">Sonbhadra</strong> — Robertsganj · Obra · Chopan
+            <Link href="/home-tuition" className="font-semibold hover:text-brand-secondary">
+              Sonbhadra
+            </Link>{" "}
+            —{" "}
+            {(["robertsganj", "obra", "chopan"] as const).map((slug, index) => (
+              <span key={slug}>
+                {index > 0 && " · "}
+                <Link href={`/home-tuition/${slug}`} className="hover:text-brand-secondary hover:underline">
+                  {slug.charAt(0).toUpperCase() + slug.slice(1)}
+                </Link>
+              </span>
+            ))}
           </span>
         </div>
 

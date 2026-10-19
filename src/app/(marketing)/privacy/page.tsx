@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { pageOpenGraph } from "@/lib/seo";
 import Link from "next/link";
 import { LegalList, LegalPage, type LegalSection } from "@/components/marketing/LegalPage";
 import { SUPPORT_EMAIL, SUPPORT_PHONE } from "@/lib/constants";
@@ -6,6 +7,8 @@ import { SUPPORT_EMAIL, SUPPORT_PHONE } from "@/lib/constants";
 export const metadata: Metadata = {
   title: "Privacy Policy",
   description: "What personal data NexTutorHub collects, why, who can see it, and your rights over it.",
+  alternates: { canonical: "/privacy" },
+  openGraph: pageOpenGraph("Privacy Policy", "What personal data NexTutorHub collects, why, who can see it, and your rights over it.", "/privacy"),
 };
 
 const strong = (text: string) => <strong className="font-semibold text-text-primary">{text}</strong>;

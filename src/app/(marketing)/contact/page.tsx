@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { pageOpenGraph } from "@/lib/seo";
 import { Container } from "@/components/ui/Container";
 import { Card, CardBody } from "@/components/ui/Card";
 import { FaqSection, GENERAL_FAQS } from "@/components/marketing/FaqSection";
@@ -11,8 +12,11 @@ import {
 } from "@/lib/constants";
 
 export const metadata: Metadata = {
-  title: "Contact Us",
-  description: "Get in touch with the NexTutorHub team.",
+  title: "Contact Us — Home Tuition Help in Sonbhadra",
+  description:
+    "Questions about finding a home tutor or teaching in Sonbhadra? Email nexqira.online@gmail.com, call +91 93697 76898 or send us a message.",
+  alternates: { canonical: "/contact" },
+  openGraph: pageOpenGraph("Contact Us — Home Tuition Help in Sonbhadra", "Questions about finding a home tutor or teaching in Sonbhadra? Email nexqira.online@gmail.com, call +91 93697 76898 or send us a message.", "/contact"),
 };
 
 const CHANNELS = [

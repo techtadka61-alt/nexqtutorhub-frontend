@@ -140,19 +140,19 @@ function FinishGoogleSignup({
   const [submitted, setSubmitted] = useState(false);
   const [serverErrors, setServerErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const dialogRef = useRef<HTMLDivElement>(null);
+  const dialogRef = useRef<HTMLDialogElement>(null);
 
+  // showModal() puts the dialog in the browser's top layer, above the sticky navbar and any stacking context
+  // (the auth card is `relative z-10`, which used to trap a z-50 overlay beneath the navbar).
   useEffect(() => {
-    dialogRef.current?.focus();
-    const onKey = (e: KeyboardEvent) => e.key === "Escape" && !isSubmitting && onCancel();
-    window.addEventListener("keydown", onKey);
+    const dialog = dialogRef.current;
+    if (dialog && !dialog.open) dialog.showModal();
     const overflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
     return () => {
-      window.removeEventListener("keydown", onKey);
       document.body.style.overflow = overflow;
     };
-  }, [isSubmitting, onCancel]);
+  }, []);
 
   const errors: Partial<Record<Field, string | null>> = {
     role: role === undefined ? "Choose student or tutor." : null,
@@ -207,24 +207,42 @@ function FinishGoogleSignup({
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/50 p-0 sm:items-center sm:p-4">
-      <div
-        ref={dialogRef}
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="google-finish-title"
-        tabIndex={-1}
-        className="max-h-[92vh] w-full max-w-lg overflow-y-auto rounded-t-2xl bg-surface p-6 shadow-xl outline-none sm:rounded-2xl"
-      >
-        <h2 id="google-finish-title" className="font-display text-xl font-bold text-brand-primary">
-          Complete your sign up
-        </h2>
-        <p className="mt-1 text-sm text-text-secondary">
-          Signing up with Google as <span className="font-semibold text-text-primary">{email}</span>. Add your contact number,
-          location and address to create your account — NexTutorHub is free for students and tutors.
-        </p>
+    <dialog
+      ref={dialogRef}
+      aria-labelledby="google-finish-title"
+      onCancel={(e) => {
+        // Escape: close like Cancel, but never mid-submit.
+        e.preventDefault();
+        if (!isSubmitting) onCancel();
+      }}
+      className="m-auto max-h-[min(92dvh,860px)] w-[calc(100%-2rem)] max-w-xl flex-col overflow-hidden rounded-3xl border border-border bg-surface p-0 text-text-primary shadow-lifted backdrop:bg-black/50 backdrop:backdrop-blur-[2px] open:flex open:animate-[modal-in_180ms_ease-out] max-sm:mb-0 max-sm:w-full max-sm:max-w-none max-sm:rounded-b-none"
+    >
+      <header className="flex items-start justify-between gap-4 border-b border-border px-6 pb-4 pt-6 sm:px-8">
+        <div className="min-w-0">
+          <h2 id="google-finish-title" className="font-display text-xl font-bold text-brand-primary sm:text-2xl">
+            Complete your sign up
+          </h2>
+          <p className="mt-1 text-sm text-text-secondary">
+            Signing up with Google as <span className="break-all font-semibold text-text-primary">{email}</span>. Add your
+            contact number, location and address — NexTutorHub is free for students and tutors.
+          </p>
+        </div>
+        <button
+          type="button"
+          aria-label="Close"
+          disabled={isSubmitting}
+          onClick={onCancel}
+          className="-mr-2 -mt-1 flex h-9 w-9 shrink-0 cursor-pointer items-center justify-center rounded-full text-text-secondary transition-colors hover:bg-brand-secondary-light/60 hover:text-text-primary focus-ring disabled:cursor-not-allowed disabled:opacity-50"
+        >
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+            <path d="M6 6l12 12M18 6L6 18" strokeLinecap="round" />
+          </svg>
+        </button>
+      </header>
 
-        <form onSubmit={submit} noValidate className="mt-5 flex flex-col gap-5">
+      {/* `isolate` keeps the map's own z-indexes (Leaflet panes/controls) inside this scroll area, under header/footer. */}
+      <div className="isolate min-h-0 flex-1 overflow-y-auto overscroll-contain px-6 py-5 sm:px-8">
+        <form id="google-finish-form" onSubmit={submit} noValidate className="flex flex-col gap-5">
           <fieldset className="flex flex-col gap-2">
             <FieldLabel as="legend" required>
               I want to
@@ -331,18 +349,18 @@ function FinishGoogleSignup({
               </span>
             }
           />
-
-          <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
-            <Button type="button" variant="ghost" pill={false} disabled={isSubmitting} onClick={onCancel}>
-              Cancel
-            </Button>
-            <Button type="submit" pill={false} isLoading={isSubmitting}>
-              Create my account
-            </Button>
-          </div>
         </form>
       </div>
-    </div>
+
+      <footer className="flex flex-col-reverse gap-3 border-t border-border bg-surface px-6 py-4 sm:flex-row sm:justify-end sm:px-8">
+        <Button type="button" variant="ghost" pill={false} disabled={isSubmitting} onClick={onCancel}>
+          Cancel
+        </Button>
+        <Button type="submit" form="google-finish-form" pill={false} isLoading={isSubmitting}>
+          Create my account
+        </Button>
+      </footer>
+    </dialog>
   );
 }
 

@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { pageOpenGraph } from "@/lib/seo";
 import Image from "next/image";
 import { Container } from "@/components/ui/Container";
 import { Button } from "@/components/ui/Button";
@@ -10,9 +11,11 @@ import { VisionMissionSection } from "@/components/marketing/VisionMissionSectio
 import aboutStudentsImage from "@/assets/images/about-students-cutout.png";
 
 export const metadata: Metadata = {
-  title: "About Us",
+  title: "About NexTutorHub — Home Tuition Platform of Sonbhadra",
   description:
-    "NexTutorHub is a local home-tuition marketplace connecting students and tutors, starting in Sonbhadra, Uttar Pradesh.",
+    "NexTutorHub is a local home-tuition platform from Sonbhadra, Uttar Pradesh, connecting students and parents with verified tutors in Robertsganj, Obra, Chopan, Renukoot and nearby.",
+  alternates: { canonical: "/about" },
+  openGraph: pageOpenGraph("About NexTutorHub — Home Tuition Platform of Sonbhadra", "NexTutorHub is a local home-tuition platform from Sonbhadra, Uttar Pradesh, connecting students and parents with verified tutors in Robertsganj, Obra, Chopan, Renukoot and nearby.", "/about"),
 };
 
 const VALUES = [

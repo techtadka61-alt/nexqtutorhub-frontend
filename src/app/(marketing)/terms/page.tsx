@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { pageOpenGraph } from "@/lib/seo";
 import Link from "next/link";
 import { LegalList, LegalPage, type LegalSection } from "@/components/marketing/LegalPage";
 import { SUPPORT_EMAIL } from "@/lib/constants";
@@ -6,6 +7,8 @@ import { SUPPORT_EMAIL } from "@/lib/constants";
 export const metadata: Metadata = {
   title: "Terms of Service",
   description: "The terms that apply when you use NexTutorHub, a product by Nexqira, as a student, parent or tutor.",
+  alternates: { canonical: "/terms" },
+  openGraph: pageOpenGraph("Terms of Service", "The terms that apply when you use NexTutorHub, a product by Nexqira, as a student, parent or tutor.", "/terms"),
 };
 
 const strong = (text: string) => <strong className="font-semibold text-text-primary">{text}</strong>;

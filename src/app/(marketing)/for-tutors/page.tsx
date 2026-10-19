@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { pageOpenGraph } from "@/lib/seo";
 import Image from "next/image";
 import Link from "next/link";
 import { Container } from "@/components/ui/Container";
@@ -12,9 +13,11 @@ import { TuitionApplyPanel } from "@/components/tutors/TuitionApplySection";
 import tutorApplyImage from "@/assets/images/Tutor-Apply.png";
 
 export const metadata: Metadata = {
-  title: "For Tutors — Apply as a Tutor",
+  title: "Tutor Jobs in Sonbhadra — Get Home Tuition Students Near You",
   description:
-    "Create your tutor profile on NexTutorHub: add your qualifications, choose home or online tuition, set your teaching area, and get discovered by students near you.",
+    "Teachers and tutors in Sonbhadra: register free, get verified and receive home-tuition requests from students within 10 km in Robertsganj, Obra, Renukoot, Anpara and nearby. No commission.",
+  alternates: { canonical: "/for-tutors" },
+  openGraph: pageOpenGraph("Tutor Jobs in Sonbhadra — Get Home Tuition Students Near You", "Teachers and tutors in Sonbhadra: register free, get verified and receive home-tuition requests from students within 10 km in Robertsganj, Obra, Renukoot, Anpara and nearby. No commission.", "/for-tutors"),
 };
 
 const STEPS = [

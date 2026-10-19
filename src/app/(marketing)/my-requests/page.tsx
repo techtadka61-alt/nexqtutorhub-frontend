@@ -9,6 +9,7 @@ import { UserRole } from "@/types/api";
 export const metadata: Metadata = {
   title: "My tuition requests",
   description: "See which tutors applied to your tuition requests and choose who to connect with.",
+  robots: { index: false, follow: false },
 };
 
 /** Kept on the public site (not the account dashboard) so students on phones stay in one familiar layout. */
