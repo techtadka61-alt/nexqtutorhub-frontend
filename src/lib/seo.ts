@@ -1,10 +1,10 @@
 import { SUPPORT_EMAIL, SUPPORT_PHONE_HREF } from "@/lib/constants";
 
 /**
- * Canonical public origin. Every canonical URL, the sitemap and structured data use it, so serve only this host:
- * redirect the www host to it in Vercel → Domains (or set this to the www origin and redirect the other way).
+ * Canonical public origin. Every canonical URL, the sitemap and structured data use it, so it must be the host
+ * Vercel serves: Vercel → Domains redirects nextutorhub.online to www.nextutorhub.online.
  */
-export const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL ?? "https://nextutorhub.online").replace(/\/+$/, "");
+export const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.nextutorhub.online").replace(/\/+$/, "");
 export const SITE_NAME = "NexTutorHub";
 
 export const DEFAULT_TITLE = "Home Tuition in Sonbhadra — Verified Home Tutors Near You | NexTutorHub";
