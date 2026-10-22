@@ -39,15 +39,30 @@ type RefreshResult = string | null | "unavailable";
 
 let refreshPromise: Promise<RefreshResult> | null = null;
 
-async function refreshAccessToken(): Promise<RefreshResult> {
-  const refreshToken = tokenStorage.getRefreshToken();
-  if (!refreshToken) {
-    // An access token the server rejected, and nothing to renew it with: the session is over.
-    if (tokenStorage.getAccessToken()) expireSession();
-    return null;
-  }
+/**
+ * Runs the refresh under a lock shared by every tab of the site (Web Locks). Each refresh rotates the refresh
+ * token, so two tabs refreshing at once (e.g. tabs restored together after the access token expired) would have
+ * one of them present the already-rotated token, get a 401 and clear the session for all tabs. Browsers without
+ * Web Locks just refresh per tab, as before.
+ */
+async function withRefreshLock<T>(fn: () => Promise<T>): Promise<T> {
+  if (typeof navigator !== "undefined" && navigator.locks) return await navigator.locks.request("nth-token-refresh", fn);
+  return fn();
+}
+
+/** `rejectedToken` is the access token the server just refused (null if the request carried none). */
+async function refreshAccessToken(rejectedToken: string | null): Promise<RefreshResult> {
   if (!refreshPromise) {
-    refreshPromise = (async () => {
+    refreshPromise = withRefreshLock(async () => {
+      // Another tab refreshed while this one waited for the lock: use its new token rather than spending ours.
+      const current = tokenStorage.getAccessToken();
+      if (current && current !== rejectedToken) return current;
+      const refreshToken = tokenStorage.getRefreshToken();
+      if (!refreshToken) {
+        // An access token the server rejected, and nothing to renew it with: the session is over.
+        if (current) expireSession();
+        return null;
+      }
       try {
         const res = await fetch(`${API_URL}/auth/refresh`, {
           method: "POST",
@@ -73,10 +88,10 @@ async function refreshAccessToken(): Promise<RefreshResult> {
       } catch {
         // Network failure: the session may be fine.
         return "unavailable";
-      } finally {
-        refreshPromise = null;
       }
-    })();
+    }).finally(() => {
+      refreshPromise = null;
+    });
   }
   return refreshPromise;
 }
@@ -99,15 +114,13 @@ export async function apiRequest<T>(path: string, options: RequestOptions = {}):
     }
   }
 
-  if (auth) {
-    const token = tokenStorage.getAccessToken();
-    if (token) finalHeaders.set("Authorization", `Bearer ${token}`);
-  }
+  const token = auth ? tokenStorage.getAccessToken() : null;
+  if (token) finalHeaders.set("Authorization", `Bearer ${token}`);
 
   const res = await fetch(`${API_URL}${path}`, { ...rest, headers: finalHeaders, body: finalBody });
 
   if (res.status === 401 && auth && !_isRetry) {
-    const newToken = await refreshAccessToken();
+    const newToken = await refreshAccessToken(token);
     if (newToken === "unavailable")
       // Not the 401 itself: callers (e.g. the session check) treat a 401 as "signed out" and would drop the tokens.
       throw new ApiError("Couldn't reach the server. Please try again.", 503, [], {});
