@@ -34,9 +34,12 @@ function expireSession() {
   if (typeof window !== "undefined") window.dispatchEvent(new Event(SESSION_EXPIRED_EVENT));
 }
 
-let refreshPromise: Promise<string | null> | null = null;
+/** A new access token, null when the session is over, or "unavailable" when the refresh couldn't be done right now. */
+type RefreshResult = string | null | "unavailable";
 
-async function refreshAccessToken(): Promise<string | null> {
+let refreshPromise: Promise<RefreshResult> | null = null;
+
+async function refreshAccessToken(): Promise<RefreshResult> {
   const refreshToken = tokenStorage.getRefreshToken();
   if (!refreshToken) {
     // An access token the server rejected, and nothing to renew it with: the session is over.
@@ -57,15 +60,19 @@ async function refreshAccessToken(): Promise<string | null> {
         if (!res.ok) {
           if (superseded) return tokenStorage.getAccessToken();
           // Only a rejected refresh token ends the session; a 5xx/429 is transient and must not log anyone out.
-          if (res.status === 401 || res.status === 403) expireSession();
-          return null;
+          if (res.status === 401 || res.status === 403) {
+            expireSession();
+            return null;
+          }
+          return "unavailable";
         }
         if (superseded) return tokenStorage.getAccessToken();
         const json = (await res.json()) as ApiEnvelope<AuthTokens>;
         tokenStorage.setTokens(json.data.accessToken, json.data.refreshToken ?? refreshToken);
         return json.data.accessToken;
       } catch {
-        return null;
+        // Network failure: the session may be fine.
+        return "unavailable";
       } finally {
         refreshPromise = null;
       }
@@ -101,6 +108,9 @@ export async function apiRequest<T>(path: string, options: RequestOptions = {}):
 
   if (res.status === 401 && auth && !_isRetry) {
     const newToken = await refreshAccessToken();
+    if (newToken === "unavailable")
+      // Not the 401 itself: callers (e.g. the session check) treat a 401 as "signed out" and would drop the tokens.
+      throw new ApiError("Couldn't reach the server. Please try again.", 503, [], {});
     if (newToken) return apiRequest<T>(path, { ...options, _isRetry: true });
   }
 

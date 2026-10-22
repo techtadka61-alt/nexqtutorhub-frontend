@@ -62,7 +62,10 @@ export function TuitionApplyPanel() {
   }, [isTutor, user?.id]);
 
   const access: Access = isLoading ? "loading" : !user ? "guest" : isTutor ? "tutor" : "not-tutor";
-  if (access === "tutor" && applications === null) return <p className="text-sm text-text-secondary">Loading…</p>;
+  // Not while the session is still loading: the form is keyed by the account, so anything typed into a "guest" form
+  // would be wiped when it remounts for the signed-in tutor.
+  if (access === "loading" || (access === "tutor" && applications === null))
+    return <p className="text-sm text-text-secondary">Loading…</p>;
 
   const latest = isTutor ? applications?.[0] : undefined;
   return (

@@ -29,8 +29,11 @@ export function sanitizeMobile(value: string): string {
   return digits.slice(0, 10);
 }
 
-/** Letters, spaces and . ' - only (the API rejects anything else in a name). */
-const NAME_PATTERN = /^\p{L}[\p{L} .'-]*$/u;
+/**
+ * Letters (with their combining marks, which Indic scripts use for vowels, e.g. "राहुल"), spaces and . ' - only
+ * (the API rejects anything else in a name).
+ */
+const NAME_PATTERN = /^\p{L}[\p{L}\p{M} .'-]*$/u;
 
 export function isValidName(value: string): boolean {
   const name = value.trim();

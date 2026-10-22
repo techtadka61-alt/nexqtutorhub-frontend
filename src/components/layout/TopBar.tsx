@@ -4,10 +4,9 @@ import { SUPPORT_EMAIL, SUPPORT_PHONE, SUPPORT_PHONE_HREF } from "@/lib/constant
 
 const SOCIAL_HANDLE = "@nextutorhub";
 
-// TODO: replace "#" with the real Instagram / Facebook page URLs.
 const SOCIAL_LINKS: { label: string; href: string; icon: ReactNode }[] = [
-  { label: "Instagram", href: "#", icon: <InstagramIcon /> },
-  { label: "Facebook", href: "#", icon: <FacebookIcon /> },
+  { label: "Instagram", href: "https://www.instagram.com/_nexqira_/", icon: <InstagramIcon /> },
+  { label: "Facebook", href: "https://www.facebook.com/profile.php?id=61579777559641", icon: <FacebookIcon /> },
 ];
 
 export function TopBar() {
