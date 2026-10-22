@@ -195,7 +195,7 @@ function StrengthMeter({ completion }: { completion: Completion }) {
             {completion.missing.length > 1 && ` +${completion.missing.length - 1} more`}
           </p>
         ) : (
-          <p className="mt-0.5 text-xs text-success">Your profile is complete.</p>
+          <p className="mt-0.5 text-xs text-success-strong">Your profile is complete.</p>
         )}
       </div>
     </div>

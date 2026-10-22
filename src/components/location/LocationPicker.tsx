@@ -234,11 +234,11 @@ function DraftStatus({ draft, mapsEnabled }: { draft: Draft; mapsEnabled: boolea
           right spot.
         </p>
       ) : level === "approximate" ? (
-        <p className="text-xs font-medium text-warning">
+        <p className="text-xs font-medium text-warning-strong">
           Approximate location (±{accuracy}). {mapsEnabled ? "Drag the pin to your exact spot before confirming." : ""}
         </p>
       ) : level ? (
-        <p className="text-xs text-success">
+        <p className="text-xs text-success-strong">
           {level === "excellent" ? "Accurate" : "Good"} location (±{accuracy}). Check the pin, then confirm.
         </p>
       ) : draft.needsAdjust ? (

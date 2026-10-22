@@ -14,7 +14,7 @@ export function CtaSection() {
         </p>
         <div className="flex flex-col gap-3 sm:flex-row">
           <Button href="/find-tutors" size="lg">
-            Find a tutor
+            Browse tutors
           </Button>
           <Button href="/signup/tutor" size="lg" variant="outline">
             Become a tutor

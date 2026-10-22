@@ -16,7 +16,11 @@ export function TopBar() {
         <div className="flex items-center gap-5 sm:gap-8">
           <a href={`mailto:${SUPPORT_EMAIL}`} className="inline-flex items-center gap-2 hover:text-brand-accent">
             <MailIcon />
-            <span className="hidden sm:inline">{SUPPORT_EMAIL}</span>
+            {/* Icon-only on phones, but still the link's accessible name there. */}
+            <span className="sr-only sm:not-sr-only">
+              <span className="sm:hidden">Email us: </span>
+              {SUPPORT_EMAIL}
+            </span>
           </a>
           <a href={`tel:${SUPPORT_PHONE_HREF}`} className="inline-flex items-center gap-2 hover:text-brand-accent">
             <PhoneIcon />

@@ -77,7 +77,7 @@ export function ResetPasswordForm() {
       </div>
 
       {!token && (
-        <div className="rounded-xl border border-warning/30 bg-warning/5 px-4 py-3 text-sm text-warning">
+        <div className="rounded-xl border border-warning/30 bg-warning/5 px-4 py-3 text-sm text-warning-strong">
           This link is missing a reset token. Please use the link from your email, or request a new
           one from the forgot password page.
         </div>

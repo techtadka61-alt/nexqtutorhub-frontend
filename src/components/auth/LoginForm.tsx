@@ -105,7 +105,7 @@ export function LoginForm() {
           </div>
         )}
         {justVerified && !error && (
-          <div role="status" className="rounded-xl border border-success/30 bg-success/5 px-4 py-3 text-sm text-success">
+          <div role="status" className="rounded-xl border border-success/30 bg-success/5 px-4 py-3 text-sm text-success-strong">
             Your email is verified. Please sign in to continue.
           </div>
         )}

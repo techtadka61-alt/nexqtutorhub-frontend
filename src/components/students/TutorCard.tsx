@@ -51,7 +51,7 @@ export function TutorCard({
           <div className="flex flex-wrap items-center gap-x-4 gap-y-1 pr-10 sm:pr-0">
             <h3 className="text-lg font-semibold text-text-primary">{tutor.name ?? "Tutor"}</h3>
             {tutor.isVerified && (
-              <span className="inline-flex items-center gap-1 text-sm font-medium text-success">
+              <span className="inline-flex items-center gap-1 text-sm font-medium text-success-strong">
                 <CheckCircleIcon />
                 Verified
               </span>
@@ -61,7 +61,7 @@ export function TutorCard({
                 className={cn(
                   "rounded-full px-2.5 py-0.5 text-xs font-bold",
                   compatibility >= 80
-                    ? "bg-success/10 text-success"
+                    ? "bg-success/10 text-success-strong"
                     : compatibility >= 50
                       ? "bg-brand-secondary-light text-brand-primary"
                       : "bg-bg text-text-secondary",

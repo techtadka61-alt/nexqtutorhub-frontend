@@ -5,8 +5,8 @@ type BadgeVariant = "mint" | "success" | "warning" | "error" | "info" | "neutral
 
 const variantClasses: Record<BadgeVariant, string> = {
   mint: "bg-brand-secondary-light text-brand-primary",
-  success: "bg-success/10 text-success",
-  warning: "bg-warning/10 text-warning",
+  success: "bg-success/10 text-success-strong",
+  warning: "bg-warning/10 text-warning-strong",
   error: "bg-error/10 text-error",
   info: "bg-info/10 text-info",
   neutral: "bg-border/60 text-text-secondary",

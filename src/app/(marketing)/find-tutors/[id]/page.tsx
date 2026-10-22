@@ -203,11 +203,11 @@ function Header({
         <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
           <h1 className="font-display text-2xl font-bold text-brand-primary sm:text-3xl">{tutor.name ?? "Tutor"}</h1>
           {tutor.isVerified ? (
-            <span className="inline-flex items-center gap-1 rounded-full bg-success/10 px-3 py-1 text-xs font-semibold text-success">
+            <span className="inline-flex items-center gap-1 rounded-full bg-success/10 px-3 py-1 text-xs font-semibold text-success-strong">
               <ShieldIcon className="h-3.5 w-3.5" /> Verified tutor
             </span>
           ) : (
-            <span className="rounded-full bg-warning/10 px-3 py-1 text-xs font-semibold text-warning">Verification pending</span>
+            <span className="rounded-full bg-warning/10 px-3 py-1 text-xs font-semibold text-warning-strong">Verification pending</span>
           )}
           {score !== null && (
             <span className="rounded-full bg-brand-secondary-light px-3 py-1 text-xs font-bold text-brand-primary">
@@ -308,7 +308,7 @@ function TrustCard({ tutor }: { tutor: TutorDetail }) {
             <span
               className={cn(
                 "mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-xs font-bold",
-                item.ok ? "bg-success/15 text-success" : "bg-warning/15 text-warning",
+                item.ok ? "bg-success/15 text-success-strong" : "bg-warning/15 text-warning-strong",
               )}
             >
               {item.ok ? "✓" : "…"}

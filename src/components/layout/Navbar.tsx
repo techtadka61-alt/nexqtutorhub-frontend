@@ -40,7 +40,8 @@ function NavbarContent({ pathname }: { pathname: string }) {
   return (
     <header className="sticky top-0 z-50 border-b border-border/80 bg-surface/90 backdrop-blur">
       <Container className="flex h-20 items-center justify-between py-3">
-        <Logo variant="horizontal" priority className="h-8 w-auto sm:h-9" />
+        {/* h-8 (32px → 174px wide) on phones, h-9 (36px → 196px) from sm. */}
+        <Logo variant="horizontal" eager sizes="(min-width: 640px) 196px, 174px" className="h-8 w-auto sm:h-9" />
 
         <nav className="hidden items-center gap-1 lg:flex">
           {NAV_LINKS.map((link) => {
@@ -69,7 +70,7 @@ function NavbarContent({ pathname }: { pathname: string }) {
                 Sign in
               </Button>
               <Button href="/request-tutor" size="sm" variant="primary">
-                Find a tutor
+                Request a tutor
               </Button>
             </>
           )}
@@ -137,7 +138,7 @@ function NavbarContent({ pathname }: { pathname: string }) {
                     Sign in
                   </Button>
                   <Button href="/request-tutor" variant="primary">
-                    Find a tutor
+                    Request a tutor
                   </Button>
                 </>
               )}

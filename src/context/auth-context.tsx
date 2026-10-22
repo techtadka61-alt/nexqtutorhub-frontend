@@ -7,7 +7,7 @@ import { tokenStorage } from "@/lib/token-storage";
 import { returnTo } from "@/lib/return-to";
 import { ApiError, SESSION_EXPIRED_EVENT } from "@/lib/api-client";
 import { ADMIN_PANEL_URL } from "@/lib/config";
-import { toast } from "react-toastify";
+import { notify } from "@/components/ui/Toast";
 import { UserRole, type GoogleAuthResponse, type SafeUser } from "@/types/api";
 
 interface AuthContextValue {
@@ -81,7 +81,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     sessionRef.current += 1;
     tokenStorage.clear();
     setIsLoading(false);
-    if (userRef.current) toast.info("Your session has expired. Please log in again.", { toastId: "session-expired" });
+    if (userRef.current) notify.info("Your session has expired. Please log in again.", { toastId: "session-expired" });
     setUser(null);
   }, []);
 

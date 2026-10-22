@@ -155,7 +155,7 @@ function VerificationNotice({ profile }: { profile: TutorProfile }) {
           : "rounded-2xl border border-warning/30 bg-warning/5 px-5 py-4"
       }
     >
-      <p className={rejected ? "text-sm font-semibold text-error" : "text-sm font-semibold text-warning"}>
+      <p className={rejected ? "text-sm font-semibold text-error" : "text-sm font-semibold text-warning-strong"}>
         {rejected ? "Your verification was not approved" : "Your profile is awaiting verification"}
       </p>
       <p className="mt-1 text-sm text-text-secondary">

@@ -24,8 +24,12 @@ export function Hero() {
           src={heroImage}
           alt="A tutor helping a student with homework at home"
           fill
-          priority
-          sizes="100vw"
+          // The LCP element on every viewport: preloaded from <head> and fetched at high priority (Next copies
+          // fetchPriority onto the preload link, so the preload and the <img> stay one request).
+          preload
+          fetchPriority="high"
+          // Full width below lg and from xl; the right half at lg.
+          sizes="(min-width: 1280px) 100vw, (min-width: 1024px) 50vw, 100vw"
           className="object-cover object-[72%_center] xl:object-center"
         />
         {/* Phones/tablets: blends the photo's top edge into the copy above it. */}
@@ -65,7 +69,7 @@ export function Hero() {
             leftIcon={<SearchIcon />}
             className="whitespace-nowrap max-sm:h-12 max-sm:flex-1 max-sm:px-4 max-sm:text-sm"
           >
-            Find a tutor
+            Request a tutor
           </Button>
           <Button
             href="/signup/tutor"
@@ -80,10 +84,10 @@ export function Hero() {
 
         <dl className="mt-2 grid w-full max-w-xl grid-cols-3 gap-3 border-t border-brand-primary/20 pt-5 sm:mt-4 sm:gap-8 sm:pt-6">
           {STATS.map((stat) => (
-            <div key={stat.label} className="min-w-0">
-              <dt className="sr-only">{stat.label}</dt>
+            // Only <dt>/<dd> may sit in a <dl> group: the visible label is the <dt>, shown under the value.
+            <div key={stat.label} className="flex min-w-0 flex-col-reverse">
+              <dt className="text-xs leading-snug text-text-primary sm:text-sm">{stat.label}</dt>
               <dd className="font-display text-[clamp(1.375rem,6vw,1.875rem)] font-bold text-brand-primary">{stat.value}</dd>
-              <p className="text-xs leading-snug text-text-primary sm:text-sm">{stat.label}</p>
             </div>
           ))}
         </dl>

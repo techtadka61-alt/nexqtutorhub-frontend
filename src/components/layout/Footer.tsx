@@ -10,7 +10,7 @@ const COLUMNS = [
     links: [
       { href: "/how-it-works", label: "How it works" },
       { href: "/for-tutors", label: "For tutors" },
-      { href: "/request-tutor", label: "Find a tutor" },
+      { href: "/request-tutor", label: "Request a tutor" },
       { href: "/find-tutors", label: "Browse tutors" },
       { href: "/signup/tutor", label: "Become a tutor" },
     ],
@@ -63,7 +63,7 @@ export function Footer() {
               {SUPPORT_PHONE}
             </a>
           </div>
-          <p className="text-xs text-white/50">Starting in Sonbhadra, Uttar Pradesh · Free for students and tutors</p>
+          <p className="text-xs text-white/75">Starting in Sonbhadra, Uttar Pradesh · Free for students and tutors</p>
         </div>
 
         {COLUMNS.map((col) => (
@@ -83,7 +83,7 @@ export function Footer() {
       </Container>
 
       <div className="border-t border-white/10 py-6">
-        <Container className="flex flex-col items-center justify-between gap-3 text-xs text-white/50 sm:flex-row">
+        <Container className="flex flex-col items-center justify-between gap-3 text-xs text-white/75 sm:flex-row">
           <p>© {new Date().getFullYear()} NexTutorHub, a product by Nexqira. All rights reserved.</p>
           <p>Built for a safer, local tuition marketplace.</p>
         </Container>

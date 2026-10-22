@@ -42,7 +42,7 @@ export function ComingSoonCities() {
           </span>
           <h2 id="coming-soon-title" className="mt-4 font-display text-3xl font-bold text-brand-primary sm:text-4xl">
             Coming{" "}
-            <span className="font-script text-4xl font-bold text-warning sm:text-5xl">soon</span> to your city
+            <span className="font-script text-4xl font-bold text-warning-display sm:text-5xl">soon</span> to your city
           </h2>
           <p className="mt-3 text-text-secondary">
             We started in Sonbhadra. Verified home tutors are coming next to these cities — register early and be among
@@ -56,7 +56,7 @@ export function ComingSoonCities() {
             <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-success opacity-60" />
             <span className="relative inline-flex h-3 w-3 rounded-full bg-success" />
           </span>
-          <span className="text-sm font-semibold text-success">Live now</span>
+          <span className="text-sm font-semibold text-success-strong">Live now</span>
           <span className="text-sm text-text-primary">
             <Link href="/home-tuition" className="font-semibold hover:text-brand-secondary">
               Sonbhadra
@@ -100,7 +100,7 @@ export function ComingSoonCities() {
                 <h3 className="mt-4 font-display text-lg font-bold text-brand-primary">{city.name}</h3>
                 <p className="text-sm text-text-secondary">{city.hindi}</p>
                 <p className="mt-1 text-xs text-text-secondary">{city.tagline}</p>
-                <span className="mt-3 inline-flex items-center gap-1.5 rounded-full bg-warning/10 px-3 py-1 text-xs font-semibold text-warning">
+                <span className="mt-3 inline-flex items-center gap-1.5 rounded-full bg-warning/10 px-3 py-1 text-xs font-semibold text-warning-strong">
                   <ClockIcon /> Coming soon
                 </span>
               </li>

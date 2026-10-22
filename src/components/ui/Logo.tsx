@@ -9,7 +9,14 @@ interface LogoProps {
   variant?: "horizontal" | "horizontal-light" | "stacked";
   className?: string;
   href?: string | false;
-  priority?: boolean;
+  /**
+   * Above-the-fold logo (the navbar): load straight away rather than lazily, but at low priority. React preloads
+   * every non-lazy <img> from <head> unless fetchPriority is "low", which would make the logo compete with the
+   * hero image (the LCP) for bandwidth.
+   */
+  eager?: boolean;
+  /** Overrides the per-variant default below when a caller renders the logo at a known, different width. */
+  sizes?: string;
 }
 
 const SOURCES = {
@@ -18,13 +25,25 @@ const SOURCES = {
   stacked: logoStacked,
 };
 
+/**
+ * Largest rendered width per variant, so the browser picks a ~200–400px file instead of the 1779px source.
+ * Horizontal: at most h-9 (36px) tall → ~196px wide. Stacked: at most h-16 (64px) tall → ~121px wide.
+ */
+const SIZES = {
+  horizontal: "200px",
+  "horizontal-light": "200px",
+  stacked: "124px",
+};
+
 /** Brand mark. `href` renders it as a home link (default "/"); pass `href={false}` for a static logo. */
-export function Logo({ variant = "horizontal", className, href = "/", priority }: LogoProps) {
+export function Logo({ variant = "horizontal", className, href = "/", eager, sizes }: LogoProps) {
   const image = (
     <Image
       src={SOURCES[variant]}
       alt="NexTutorHub"
-      priority={priority}
+      sizes={sizes ?? SIZES[variant]}
+      loading={eager ? "eager" : undefined}
+      fetchPriority={eager ? "low" : undefined}
       // A passed className replaces the default size (cn doesn't dedupe conflicting h-* classes).
       className={className ?? (variant === "stacked" ? "h-16 w-auto" : "h-9 w-auto")}
     />

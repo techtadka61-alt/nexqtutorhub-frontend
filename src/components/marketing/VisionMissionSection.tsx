@@ -26,7 +26,7 @@ export function VisionMissionSection() {
     <section className="bg-surface py-20">
       <Container>
         <div className="mx-auto max-w-2xl text-center">
-          <span className="inline-flex items-center gap-2 font-script text-3xl font-bold text-warning">
+          <span className="inline-flex items-center gap-2 font-script text-3xl font-bold text-warning-display">
             <SparkleIcon />
             Vision &amp; Mission
           </span>

@@ -14,7 +14,8 @@
 
   /* Text */
   --color-text-primary: #17211f;
-  --color-text-secondary: #66736f;
+  /* ≥4.5:1 on the page, white and the light status/brand tints (was #66736f: 4.17–4.45 on tints). */
+  --color-text-secondary: #606c68;
 
   /* Border */
   --color-border: #dde6e3;
@@ -24,6 +25,15 @@
   --color-warning: #d99a24;
   --color-error: #d9534f;
   --color-info: #3186a8;
+  /*
+   * Status colours for TEXT. The base hues above stay for fills, tints, borders and icons; as text they fail
+   * WCAG AA (warning 2.3:1, success 3.5:1). Same hue, darker:
+   * -strong ≥4.5:1 on white, the page and the /5–/15 tints (any text size);
+   * warning-display ≥3:1 for large display text only (≥24px, e.g. the script accents) and status icons.
+   */
+  --color-warning-strong: #8c6417;
+  --color-warning-display: #b27e1d;
+  --color-success-strong: #1d7758;
 
   --background: var(--color-bg);
   --foreground: var(--color-text-primary);
@@ -48,6 +58,9 @@
   --color-warning: var(--color-warning);
   --color-error: var(--color-error);
   --color-info: var(--color-info);
+  --color-warning-strong: var(--color-warning-strong);
+  --color-warning-display: var(--color-warning-display);
+  --color-success-strong: var(--color-success-strong);
 
   --font-sans: var(--font-plus-jakarta);
   --font-display: var(--font-clash);

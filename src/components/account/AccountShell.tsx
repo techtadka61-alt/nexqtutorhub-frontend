@@ -114,7 +114,7 @@ export function AccountShell({ children }: { children: React.ReactNode }) {
 
           <div className="flex items-center gap-3">
             {!user?.isEmailVerified && (
-              <span className="hidden rounded-full bg-warning/10 px-3 py-1.5 text-xs font-semibold text-warning sm:inline-block">
+              <span className="hidden rounded-full bg-warning/10 px-3 py-1.5 text-xs font-semibold text-warning-strong sm:inline-block">
                 Email not verified
               </span>
             )}

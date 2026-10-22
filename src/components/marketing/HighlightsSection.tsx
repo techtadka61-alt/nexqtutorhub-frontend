@@ -24,14 +24,14 @@ export function HighlightsSection() {
       <Container>
         <h2 className="text-center font-display text-3xl font-bold text-brand-primary sm:text-4xl">
           Highlights{" "}
-          <span className="font-script text-4xl font-bold text-warning sm:text-5xl">@nextutorhub</span>
+          <span className="font-script text-4xl font-bold text-warning-display sm:text-5xl">@nextutorhub</span>
         </h2>
 
         <div className="mx-auto mt-10 grid max-w-6xl grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
           <HighlightCard className="border-warning/40 bg-warning/10">
             <p className="font-display text-base font-bold text-brand-primary">NexTutorHub</p>
             <p className="text-xs font-medium text-text-primary">Identified &amp; supported by</p>
-            <p className="text-[9px] uppercase leading-tight tracking-wide text-text-secondary">
+            <p className="text-[11px] uppercase leading-tight tracking-wide text-text-secondary">
               Ministry of Micro, Small &amp; Medium Enterprises
             </p>
             <Image
