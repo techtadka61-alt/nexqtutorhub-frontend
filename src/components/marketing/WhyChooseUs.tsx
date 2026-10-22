@@ -44,7 +44,8 @@ export function WhyChooseUs() {
           className="mx-auto h-auto w-full max-w-sm lg:max-w-md"
         />
 
-        <div>
+        {/* Phones (one column): centred, like the image above it; two columns from sm keep the left-aligned grid. */}
+        <div className="max-sm:text-center">
           <span className="text-sm font-semibold uppercase tracking-wide text-brand-secondary">
             Why choose us
           </span>
@@ -56,9 +57,9 @@ export function WhyChooseUs() {
             tutors can connect with confidence.
           </p>
 
-          <div className="mt-8 grid gap-5 sm:grid-cols-2">
+          <div className="mt-8 grid gap-8 sm:grid-cols-2 sm:gap-5">
             {REASONS.map((reason) => (
-              <div key={reason.title} className="flex flex-col gap-3">
+              <div key={reason.title} className="flex flex-col items-center gap-3 sm:items-start">
                 <span
                   className={`flex h-11 w-11 items-center justify-center rounded-xl ${reason.tint}`}
                 >

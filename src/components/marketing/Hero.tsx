@@ -69,7 +69,7 @@ export function Hero() {
             leftIcon={<SearchIcon />}
             className="whitespace-nowrap max-sm:h-12 max-sm:flex-1 max-sm:px-4 max-sm:text-sm"
           >
-            Request a tutor
+            Search a tutor
           </Button>
           <Button
             href="/signup/tutor"

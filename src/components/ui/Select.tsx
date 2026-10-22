@@ -48,13 +48,14 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps>(function Select
           aria-invalid={!!error}
           {...rest}
         >
+          {/* Options inherit the select's muted :invalid colour (shown while empty), so each sets its own. */}
           {placeholder && (
-            <option value="" disabled>
+            <option value="" disabled className="text-text-secondary">
               {placeholder}
             </option>
           )}
           {options.map((opt) => (
-            <option key={opt.value} value={opt.value}>
+            <option key={opt.value} value={opt.value} className="text-text-primary">
               {opt.label}
             </option>
           ))}

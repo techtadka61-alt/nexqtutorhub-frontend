@@ -79,7 +79,7 @@ function RequestList() {
             <h2 className="text-base font-semibold text-text-primary">No requests yet</h2>
             <p className="text-sm text-text-secondary">Tell us what you need and verified tutors will apply to you.</p>
             <Button href="/request-tutor" pill={false}>
-              Request a tutor
+              Search a tutor
             </Button>
           </CardBody>
         </Card>

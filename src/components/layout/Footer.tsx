@@ -10,7 +10,7 @@ const COLUMNS = [
     links: [
       { href: "/how-it-works", label: "How it works" },
       { href: "/for-tutors", label: "For tutors" },
-      { href: "/request-tutor", label: "Request a tutor" },
+      { href: "/request-tutor", label: "Search a tutor" },
       { href: "/find-tutors", label: "Browse tutors" },
       { href: "/signup/tutor", label: "Become a tutor" },
     ],

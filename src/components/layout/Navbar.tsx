@@ -70,7 +70,7 @@ function NavbarContent({ pathname }: { pathname: string }) {
                 Sign in
               </Button>
               <Button href="/request-tutor" size="sm" variant="primary">
-                Request a tutor
+                Search a tutor
               </Button>
             </>
           )}
@@ -138,7 +138,7 @@ function NavbarContent({ pathname }: { pathname: string }) {
                     Sign in
                   </Button>
                   <Button href="/request-tutor" variant="primary">
-                    Request a tutor
+                    Search a tutor
                   </Button>
                 </>
               )}

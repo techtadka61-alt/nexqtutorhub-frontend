@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/Input";
 import { LocationPicker } from "@/components/location/LocationPicker";
 import { MobileInput } from "@/components/ui/MobileInput";
 import { isValidMobile, sanitizeMobile, VALIDATION_MESSAGES } from "@/lib/validation";
-import { MultiSelectChips } from "@/components/ui/MultiSelectChips";
+import { CreatableMultiSelect } from "@/components/ui/CreatableMultiSelect";
 import { Select } from "@/components/ui/Select";
 import { Textarea } from "@/components/ui/Textarea";
 import { useAuth } from "@/context/auth-context";
@@ -204,31 +204,30 @@ export function RequestTutorForm() {
       <fieldset disabled={isSubmitting} className="flex flex-col gap-5 disabled:opacity-70">
         {step === 0 && (
           <>
-            <div className="grid gap-5 sm:grid-cols-2">
-              <Select
-                label="Class"
-                required
-                placeholder="Choose class"
-                options={catalog.classes.map((value) => ({ value, label: value }))}
-                value={form.studentClass}
-                onChange={(e) => update("studentClass", e.target.value)}
-              />
-              <Select
-                label="Board"
-                required
-                placeholder="Choose board"
-                options={catalog.boards.map((value) => ({ value, label: value }))}
-                value={form.board}
-                onChange={(e) => update("board", e.target.value)}
-              />
-            </div>
-            <MultiSelectChips
+            <Select
+              label="Class"
+              required
+              placeholder="Choose class"
+              options={catalog.classes.map((value) => ({ value, label: value }))}
+              value={form.studentClass}
+              onChange={(e) => update("studentClass", e.target.value)}
+            />
+            <Select
+              label="Board"
+              required
+              placeholder="Choose board"
+              options={catalog.boards.map((value) => ({ value, label: value }))}
+              value={form.board}
+              onChange={(e) => update("board", e.target.value)}
+            />
+            <CreatableMultiSelect
               label="Subjects"
               required
+              placeholder="Search or type a subject"
               options={catalog.subjects}
               value={form.subjects}
               onChange={(value) => update("subjects", value)}
-              hint="Pick one or more"
+              hint="Pick from the list, or type a subject that isn't listed and press Enter."
             />
           </>
         )}
@@ -362,24 +361,26 @@ export function RequestTutorForm() {
         </div>
       </fieldset>
 
-      {access === "guest" && (
-        <p className="text-sm text-text-secondary">
-          Already have an account?{" "}
-          <Link
-            href={`/login?next=${encodeURIComponent(PAGE_PATH)}`}
-            className="font-semibold text-brand-secondary hover:text-brand-primary"
-          >
-            Sign in
-          </Link>{" "}
-          first, or keep going — we&apos;ll save your answers.
+      <div className="flex flex-col gap-2 border-t border-border pt-5 text-center text-sm text-text-secondary">
+        {access === "guest" && (
+          <p>
+            Already have an account?{" "}
+            <Link
+              href={`/login?next=${encodeURIComponent(PAGE_PATH)}`}
+              className="font-semibold text-brand-secondary hover:text-brand-primary"
+            >
+              Sign in
+            </Link>{" "}
+            first, or keep going — we&apos;ll save your answers.
+          </p>
+        )}
+        <p>
+          Prefer to look yourself?{" "}
+          <Link href="/find-tutors" className="font-semibold text-brand-secondary hover:text-brand-primary">
+            Browse tutors
+          </Link>
         </p>
-      )}
-      <p className="text-sm text-text-secondary">
-        Prefer to look yourself?{" "}
-        <Link href="/find-tutors" className="font-semibold text-brand-secondary hover:text-brand-primary">
-          Browse tutors
-        </Link>
-      </p>
+      </div>
     </form>
   );
 }
