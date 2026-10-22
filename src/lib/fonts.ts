@@ -13,10 +13,13 @@ export const displayFont = Sora({
   weight: ["600", "700", "800"],
 });
 
-/** Handwritten accent, used sparingly (e.g. the "@nextutorhub" handle in Highlights). */
+/**
+ * Handwritten accent, used sparingly (e.g. the "@nextutorhub" handle in Highlights). Every use is bold, so only 700
+ * is loaded: asking for 600 + 700 made Google serve the whole variable font (73 KB, preloaded on every page).
+ */
 export const scriptFont = Caveat({
   variable: "--font-caveat",
   subsets: ["latin"],
   display: "swap",
-  weight: ["600", "700"],
+  weight: "700",
 });
