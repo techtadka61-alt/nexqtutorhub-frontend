@@ -4,30 +4,30 @@ import whyChooseUsImage from "@/assets/images/why-choose-us-cutout.png";
 
 const REASONS = [
   {
-    title: "Verified Tutors",
+    title: "Verified ट्यूटर",
     description:
-      "Every tutor profile goes through ID and qualification checks before it appears in search, so you know exactly who is teaching your child.",
+      "हर ट्यूटर की ID और qualification की जांच के बाद ही उनकी प्रोफ़ाइल सर्च में दिखती है, ताकि आपको पता रहे कि आपके बच्चे को कौन पढ़ा रहा है।",
     icon: <ShieldIcon />,
     tint: "bg-brand-primary text-white",
   },
   {
-    title: "Matched to You",
+    title: "आपकी ज़रूरत के हिसाब से",
     description:
-      "Filter by class, subject, board, budget, schedule and teaching mode — home, online, or both — to find tutors who actually fit your requirement.",
+      "क्लास, सब्जेक्ट, बोर्ड, बजट, टाइमिंग और पढ़ाई का तरीका — घर पर, ऑनलाइन या दोनों — चुनें और वही ट्यूटर पाएं जो सच में आपके लिए सही हों।",
     icon: <TargetIcon />,
     tint: "bg-brand-secondary text-white",
   },
   {
-    title: "Privacy First",
+    title: "प्राइवेसी सबसे पहले",
     description:
-      "Discovery works by area and distance, not your exact address. Your precise location is never shown publicly to the other side.",
+      "ट्यूटर आपके एरिया और दूरी से मिलते हैं, आपके पूरे पते से नहीं। आपकी सही लोकेशन किसी को पब्लिक में नहीं दिखती।",
     icon: <LockIcon />,
     tint: "bg-brand-accent text-brand-primary",
   },
   {
-    title: "Local & Nearby",
+    title: "लोकल और पास में",
     description:
-      "Search by city, or by distance from where you are, to find tutors who can genuinely reach you for home tuition, or teach online from anywhere.",
+      "शहर या अपनी जगह से दूरी के हिसाब से खोजें, ताकि ऐसे ट्यूटर मिलें जो सच में घर आकर पढ़ा सकें — या कहीं से भी ऑनलाइन पढ़ाएं।",
     icon: <PinIcon />,
     tint: "bg-info text-white",
   },
@@ -35,11 +35,11 @@ const REASONS = [
 
 export function WhyChooseUs() {
   return (
-    <section className="bg-surface py-20">
+    <section lang="hi" className="bg-surface py-20">
       <Container className="grid gap-12 lg:grid-cols-2 lg:items-center lg:gap-16">
         <Image
           src={whyChooseUsImage}
-          alt="Two students looking at a board of NexTutorHub benefits"
+          alt="NexTutorHub की खूबियों वाला बोर्ड देखते दो स्टूडेंट्स"
           sizes="(min-width: 1024px) 40vw, 80vw"
           className="mx-auto h-auto w-full max-w-sm lg:max-w-md"
         />
@@ -47,14 +47,14 @@ export function WhyChooseUs() {
         {/* Phones (one column): centred, like the image above it; two columns from sm keep the left-aligned grid. */}
         <div className="max-sm:text-center">
           <span className="text-sm font-semibold uppercase tracking-wide text-brand-secondary">
-            Why choose us
+            हमें क्यों चुनें
           </span>
           <h2 className="mt-3 font-display text-3xl font-bold text-brand-primary sm:text-4xl">
-            Built for trust, matched by what matters
+            भरोसे पर बना, आपकी ज़रूरत से मैच
           </h2>
           <p className="mt-4 text-text-secondary">
-            NexTutorHub combines verification, smart matching and privacy controls so families and
-            tutors can connect with confidence.
+            NexTutorHub पर verification, सही मैचिंग और प्राइवेसी कंट्रोल एक साथ मिलते हैं, ताकि पेरेंट्स और
+            ट्यूटर भरोसे से जुड़ सकें।
           </p>
 
           <div className="mt-8 grid gap-8 sm:grid-cols-2 sm:gap-5">

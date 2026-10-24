@@ -2,44 +2,44 @@ import Link from "next/link";
 import { Container } from "@/components/ui/Container";
 
 const STUDENT_STEPS = [
-  "Create your requirement",
-  "Discover compatible tutors",
-  "Connect and schedule a demo",
-  "Start learning and review",
+  "अपनी ज़रूरत बताएं",
+  "अपने हिसाब के ट्यूटर देखें",
+  "बात करें और डेमो क्लास तय करें",
+  "पढ़ाई शुरू करें और रिव्यू दें",
 ];
 
 const TUTOR_STEPS = [
-  "Build a trusted profile",
-  "Find nearby requirements",
-  "Express interest and connect",
-  "Start teaching and grow",
+  "भरोसेमंद प्रोफ़ाइल बनाएं",
+  "पास की ट्यूशन requirements देखें",
+  "Apply करें और स्टूडेंट से जुड़ें",
+  "पढ़ाना शुरू करें और आगे बढ़ें",
 ];
 
 export function HowItWorksSection() {
   return (
-    <section className="bg-bg py-20">
+    <section lang="hi" className="bg-bg py-20">
       <Container>
         <div className="mx-auto max-w-2xl text-center">
           <span className="text-sm font-semibold uppercase tracking-wide text-brand-secondary">
-            Two-sided marketplace
+            कैसे काम करता है
           </span>
           <h2 className="mt-3 font-display text-3xl font-bold text-brand-primary sm:text-4xl">
-            One clear path, whichever side you&rsquo;re on
+            Parents हों या ट्यूटर — रास्ता आसान है
           </h2>
         </div>
 
         <div className="mt-14 grid gap-6 lg:grid-cols-2">
           <StepCard
-            title="For students & parents"
+            title="स्टूडेंट्स और पेरेंट्स के लिए"
             steps={STUDENT_STEPS}
             href="/signup/student"
-            cta="Explore student workspace"
+            cta="फ्री स्टूडेंट अकाउंट बनाएं"
           />
           <StepCard
-            title="For tutors & teachers"
+            title="ट्यूटर और टीचर्स के लिए"
             steps={TUTOR_STEPS}
             href="/for-tutors"
-            cta="Explore tutor workspace"
+            cta="ट्यूटर्स के लिए पूरी जानकारी"
           />
         </div>
       </Container>

@@ -5,9 +5,9 @@ import { Button } from "@/components/ui/Button";
 import heroImage from "@/assets/images/hero-tuition.png";
 
 const STATS = [
-  { value: PLATFORM_STATS.verifiedTutors, label: "Verified tutors" },
-  { value: PLATFORM_STATS.studentsTaught, label: "Students taught" },
-  { value: PLATFORM_STATS.fiveStarReviews, label: "Five-star reviews" },
+  { value: PLATFORM_STATS.verifiedTutors, label: "Verified ट्यूटर" },
+  { value: PLATFORM_STATS.studentsTaught, label: "स्टूडेंट्स पढ़ाए" },
+  { value: PLATFORM_STATS.fiveStarReviews, label: "फाइव-स्टार रिव्यू" },
 ];
 
 /**
@@ -15,14 +15,16 @@ const STATS = [
  * - below lg: copy on a soft tint, the photo in its own block underneath (text over a photo is unreadable on phones);
  * - lg: copy on the left half, the photo on the right half;
  * - xl: the photo fills the section behind the copy, faded on the left.
+ * Copy is in everyday Hindi for parents; the English "home tuition" keywords stay in the badge and the heading for
+ * search, and the page title and description (root layout) stay in English.
  */
 export function Hero() {
   return (
-    <section className="relative flex flex-col overflow-hidden bg-gradient-to-b from-brand-secondary-light/60 via-bg to-bg xl:bg-none">
+    <section lang="hi" className="relative flex flex-col overflow-hidden bg-gradient-to-b from-brand-secondary-light/60 via-bg to-bg xl:bg-none">
       <div className="relative order-2 aspect-[4/3] w-full sm:aspect-[16/9] lg:absolute lg:inset-y-0 lg:right-0 lg:order-none lg:aspect-auto lg:w-1/2 xl:w-full">
         <Image
           src={heroImage}
-          alt="A tutor helping a student with homework at home"
+          alt="घर पर बच्चे को होमवर्क में मदद करते हुए ट्यूटर"
           fill
           // The LCP element on every viewport: preloaded from <head> and fetched at high priority (Next copies
           // fetchPriority onto the preload link, so the preload and the <img> stay one request).
@@ -50,16 +52,16 @@ export function Hero() {
       <Container className="relative order-1 flex flex-col gap-4 pb-8 pt-8 sm:gap-6 sm:pb-12 sm:pt-12 lg:order-none lg:min-h-[640px] lg:justify-center lg:py-16 lg:pr-[calc(50%+2rem)] xl:min-h-[680px] xl:pr-10">
         <span className="inline-flex w-fit items-center gap-2 text-xs font-semibold text-brand-primary sm:text-sm">
           <LocationIcon />
-          Starting in Sonbhadra, Uttar Pradesh
+          Home Tuition in Sonbhadra, Uttar Pradesh
         </span>
 
         <h1 className="max-w-2xl text-balance font-display text-[clamp(2rem,8.5vw,3rem)] font-bold leading-[1.08] tracking-tight text-brand-primary xl:text-6xl">
-          Find the Right Tutor Near You
+          आपके घर के पास Verified Home Tutor
         </h1>
 
         <p className="max-w-xl text-[15px] leading-relaxed text-text-primary sm:text-lg">
-          Discover trusted local educators matched to your class, subject, area, schedule, and
-          budget — without exposing your exact address.
+          अपनी क्लास, सब्जेक्ट, एरिया, टाइमिंग और बजट के हिसाब से भरोसेमंद लोकल ट्यूटर पाएं — अपना
+          पूरा पता किसी को बताए बिना।
         </p>
 
         <div className="flex flex-wrap gap-3">
@@ -69,7 +71,7 @@ export function Hero() {
             leftIcon={<SearchIcon />}
             className="whitespace-nowrap max-sm:h-12 max-sm:flex-1 max-sm:px-4 max-sm:text-sm"
           >
-            Search a tutor
+            ट्यूटर खोजें
           </Button>
           <Button
             href="/signup/tutor"
@@ -78,7 +80,7 @@ export function Hero() {
             rightIcon={<ArrowIcon />}
             className="whitespace-nowrap max-sm:h-12 max-sm:flex-1 max-sm:px-4 max-sm:text-sm"
           >
-            Become a tutor
+            ट्यूटर बनें
           </Button>
         </div>
 

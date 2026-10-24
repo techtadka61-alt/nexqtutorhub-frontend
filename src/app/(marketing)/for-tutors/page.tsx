@@ -195,7 +195,7 @@ export default function ForTutorsPage() {
       <WhyChooseUs />
       <HighlightsSection />
       <CtaSection />
-      <FaqSection items={TUTOR_FAQS} subtitle="Everything you need to know before you start teaching." />
+      <FaqSection items={TUTOR_FAQS} subtitle="पढ़ाना शुरू करने से पहले जानने वाली सारी बातें।" />
     </>
   );
 }

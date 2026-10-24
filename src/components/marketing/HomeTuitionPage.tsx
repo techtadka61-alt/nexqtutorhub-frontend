@@ -24,34 +24,35 @@ const CLASS_GROUPS = [
   { title: "College subjects", text: "Undergraduate subjects with tutors who have studied them." },
 ];
 
+/** In Hindi for parents, with the English place name and "home tutor" / "home tuition" kept for search. */
 export function localityFaqs(place: string): FaqItem[] {
   return [
     {
-      question: `How do I find a home tutor in ${place}?`,
-      answer: `Post your requirement on NexTutorHub — class, board, subjects, budget and timing — and share where you need tuition. Verified tutors within 10 km of you in ${place} are notified and apply, and you choose the one you like. It takes about a minute.`,
+      question: `${place} में home tutor कैसे मिलेगा?`,
+      answer: `NexTutorHub पर अपनी ज़रूरत बताएं — क्लास, बोर्ड, सब्जेक्ट, बजट और टाइमिंग — और बताएं कि ट्यूशन कहाँ चाहिए। ${place} में आपके 10 किमी के अंदर के Verified ट्यूटर्स को इसकी खबर मिलती है, वे apply करते हैं, और आप अपनी पसंद का ट्यूटर चुनते हैं। इसमें करीब एक मिनट लगता है।`,
     },
     {
-      question: `What is the fee for home tuition in ${place}?`,
+      question: `${place} में home tuition की फीस कितनी है?`,
       answer:
-        "Each tutor sets their own monthly fee, depending on the class, subjects and number of days a week. You set your budget when you post, can compare tutors by fee, and agree the final fee directly with the tutor. NexTutorHub charges no commission.",
+        "हर ट्यूटर अपनी महीने की फीस खुद तय करता है — क्लास, सब्जेक्ट और हफ़्ते में कितने दिन पढ़ाना है, इसके हिसाब से। Requirement डालते समय आप अपना बजट बताते हैं, ट्यूटर्स की फीस की तुलना कर सकते हैं और फाइनल फीस सीधे ट्यूटर से तय करते हैं। NexTutorHub कोई कमीशन नहीं लेता।",
     },
     {
-      question: `Are the tutors in ${place} verified?`,
+      question: `क्या ${place} के ट्यूटर verified हैं?`,
       answer:
-        "Yes. Every tutor applies with their details and resume, and our team checks their ID and qualifications before they get the Verified badge and can contact students.",
+        "हाँ। हर ट्यूटर अपनी जानकारी और resume के साथ apply करता है, और हमारी टीम उनकी ID और qualification चेक करती है। उसके बाद ही उन्हें Verified badge मिलता है और वे स्टूडेंट्स से संपर्क कर पाते हैं।",
     },
     {
-      question: `Do you have tutors for CBSE, ICSE and UP Board students in ${place}?`,
+      question: `क्या ${place} में CBSE, ICSE और UP Board के लिए ट्यूटर हैं?`,
       answer:
-        "Yes. Tutors list the boards they teach — CBSE, ICSE and UP Board (State Board) — and you are matched with tutors who teach your board and class, from Nursery to Class 12.",
+        "हाँ। ट्यूटर बताते हैं कि वे कौन-से बोर्ड पढ़ाते हैं — CBSE, ICSE और UP Board (State Board) — और आपका मैच उन्हीं ट्यूटर्स से होता है जो आपका बोर्ड और क्लास पढ़ाते हैं, Nursery से Class 12 तक।",
     },
     {
-      question: `I am a teacher in ${place}. How can I get home tuition students?`,
-      answer: `Register free as a tutor, complete your profile with your subjects, classes and teaching location, and apply for verification. Once verified, you are notified of student requests within 10 km of you in ${place}, with no listing fee or commission.`,
+      question: `मैं ${place} में टीचर हूँ। Home tuition के स्टूडेंट्स कैसे मिलेंगे?`,
+      answer: `ट्यूटर के तौर पर फ्री registration करें, अपनी प्रोफ़ाइल में सब्जेक्ट, क्लास और पढ़ाने की लोकेशन भरें, और verification के लिए apply करें। Verified होने के बाद ${place} में आपके 10 किमी के अंदर की स्टूडेंट requests की खबर आपको मिलती है — बिना किसी लिस्टिंग फीस या कमीशन के।`,
     },
     {
-      question: "Is online tuition also available?",
-      answer: "Yes. Choose online or both home and online tuition when you post, and tutors who teach online can apply from anywhere.",
+      question: "क्या ऑनलाइन ट्यूशन भी मिलती है?",
+      answer: "हाँ। Requirement डालते समय ऑनलाइन, या घर पर और ऑनलाइन दोनों चुनें — ऑनलाइन पढ़ाने वाले ट्यूटर कहीं से भी apply कर सकते हैं।",
     },
   ];
 }
@@ -65,6 +66,7 @@ interface HomeTuitionPageProps {
 export function HomeTuitionPage({ locality }: HomeTuitionPageProps) {
   const place = locality ? `${locality.name}, Sonbhadra` : "Sonbhadra";
   const shortPlace = locality?.name ?? "Sonbhadra";
+  const hindiPlace = locality?.hindi ?? "सोनभद्र";
   const path = locality ? localityPath(locality.slug) : "/home-tuition";
   const faqs = localityFaqs(shortPlace);
   const nearby = locality
@@ -107,7 +109,7 @@ export function HomeTuitionPage({ locality }: HomeTuitionPageProps) {
             {locality ? `${locality.hindi} · सोनभद्र` : "सोनभद्र · Uttar Pradesh"}
           </span>
           <h1 className="mt-2 font-display text-3xl font-bold text-brand-primary sm:text-5xl">
-            Home Tuition in {shortPlace} — Verified Home Tutors Near You
+            Home Tuition in {shortPlace} – {hindiPlace} में घर पर ट्यूशन
           </h1>
           <p className="mt-5 text-lg text-text-secondary">
             {locality ? (
@@ -126,8 +128,8 @@ export function HomeTuitionPage({ locality }: HomeTuitionPageProps) {
             )}
           </p>
           <p className="mt-3 text-text-secondary">
-            {shortPlace} में होम ट्यूशन चाहिए? अपनी ज़रूरत बताइए — कक्षा, बोर्ड, विषय और बजट — और 10 किमी के अंदर के
-            वेरिफ़ाइड ट्यूटर आपसे संपर्क करेंगे।
+            {hindiPlace} में होम ट्यूशन चाहिए? अपनी ज़रूरत बताइए — क्लास, बोर्ड, सब्जेक्ट और बजट — और 10 किमी के
+            अंदर के Verified ट्यूटर आपसे संपर्क करेंगे।
           </p>
           <div className="mt-8 flex flex-wrap gap-3">
             <Button href="/request-tutor" size="lg">
@@ -215,7 +217,7 @@ export function HomeTuitionPage({ locality }: HomeTuitionPageProps) {
       </section>
 
       <WhyChooseUs />
-      <FaqSection items={faqs} subtitle={`Common questions about home tuition in ${shortPlace}.`} />
+      <FaqSection items={faqs} subtitle={`${hindiPlace} में home tuition से जुड़े आम सवाल।`} />
     </>
   );
 }

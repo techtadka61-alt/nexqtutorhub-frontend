@@ -2,8 +2,8 @@ import Image from "next/image";
 import type { ReactNode } from "react";
 import { Container } from "@/components/ui/Container";
 import { cn } from "@/lib/cn";
+import { UDYAM_NUMBER } from "@/lib/constants";
 import { PLATFORM_STATS } from "@/lib/platform-stats";
-import msmeLogo from "@/assets/images/msme-logo.png";
 import nexqiraLogo from "@/assets/images/nexqira.jpeg";
 import classroomIllustration from "@/assets/images/tutors-teach-cutout.png";
 import reviewsIllustration from "@/assets/images/review-cutout.png";
@@ -12,12 +12,12 @@ import tutorIllustration from "@/assets/images/Tutor-Apply.png";
 const { studentsTaught: STUDENTS_TAUGHT, verifiedTutors: VERIFIED_TUTORS, fiveStarReviews: FIVE_STAR_REVIEWS } = PLATFORM_STATS;
 
 /**
- * Trust highlights (MSME recognition, parent company, traction). Shared across the marketing pages — Home, About,
+ * Trust highlights (Udyam MSME registration, parent company, traction). Shared across the marketing pages — Home, About,
  * How it works, For tutors and Contact — always placed just before the closing call-to-action.
  */
 export function HighlightsSection() {
   return (
-    <section className="relative overflow-hidden py-20">
+    <section lang="hi" className="relative overflow-hidden py-20">
       <CurlyArrow className="absolute top-8 left-[4%] hidden w-28 lg:block xl:left-[10%]" />
       <CurlyArrow className="absolute top-8 right-[4%] hidden w-28 -scale-x-100 lg:block xl:right-[10%]" />
 
@@ -30,22 +30,17 @@ export function HighlightsSection() {
         <div className="mx-auto mt-10 grid max-w-6xl grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
           <HighlightCard className="border-warning/40 bg-warning/10">
             <p className="font-display text-base font-bold text-brand-primary">NexTutorHub</p>
-            <p className="text-xs font-medium text-text-primary">Identified &amp; supported by</p>
-            <p className="text-[11px] uppercase leading-tight tracking-wide text-text-secondary">
-              Ministry of Micro, Small &amp; Medium Enterprises
+            <p className="text-sm font-medium text-text-primary">Udyam Registered MSME</p>
+            <BadgeIcon />
+            <p className="mt-auto rounded-lg border border-warning/40 bg-surface px-2 py-1.5 font-mono text-[11px] font-semibold tracking-wide break-all text-brand-primary">
+              {UDYAM_NUMBER}
             </p>
-            <Image
-              src={msmeLogo}
-              alt="MSME — Ministry of Micro, Small & Medium Enterprises"
-              sizes="80px"
-              className="mt-auto h-20 w-auto"
-            />
           </HighlightCard>
 
 
           <HighlightCard className="border-border bg-surface">
             <p className="font-display text-2xl font-bold text-brand-primary">{STUDENTS_TAUGHT}</p>
-            <p className="text-sm font-medium text-text-primary">Students Taught</p>
+            <p className="text-sm font-medium text-text-primary">स्टूडेंट्स पढ़ाए</p>
             <Image
               src={classroomIllustration}
               alt="A tutor teaching a class of happy students"
@@ -60,7 +55,7 @@ export function HighlightsSection() {
 
           <HighlightCard className="border-brand-secondary/30 bg-brand-secondary-light/50">
             <p className="font-display text-2xl font-bold text-brand-primary">{VERIFIED_TUTORS}</p>
-            <p className="text-sm font-medium text-text-primary">Verified Tutors</p>
+            <p className="text-sm font-medium text-text-primary">Verified ट्यूटर</p>
             <Image
               src={tutorIllustration}
               alt="A tutor at her laptop with subject cards around her"
@@ -71,7 +66,7 @@ export function HighlightsSection() {
 
           <HighlightCard className="col-span-2 border-warning/40 bg-warning/10 sm:col-span-1">
             <p className="font-display text-2xl font-bold text-brand-primary">{FIVE_STAR_REVIEWS}</p>
-            <p className="text-sm font-medium text-text-primary">Five-Star Reviews</p>
+            <p className="text-sm font-medium text-text-primary">फाइव-स्टार रिव्यू</p>
             <Image
               src={reviewsIllustration}
               alt="Two students holding up a five-star review"
@@ -95,6 +90,19 @@ function HighlightCard({ className, children }: { className: string; children: R
     >
       {children}
     </div>
+  );
+}
+
+/** Rosette with a tick, standing in for a registration seal. */
+function BadgeIcon() {
+  return (
+    <svg className="my-2 h-12 w-12 text-warning" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden>
+      <path
+        d="M12 2l2.4 1.8 3-.2.9 2.9 2.4 1.8-.9 2.9.9 2.9-2.4 1.8-.9 2.9-3-.2L12 22l-2.4-1.8-3 .2-.9-2.9-2.4-1.8.9-2.9-.9-2.9 2.4-1.8.9-2.9 3 .2L12 2Z"
+        strokeLinejoin="round"
+      />
+      <path d="M8.5 12.2l2.4 2.4 4.6-4.8" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
   );
 }
 

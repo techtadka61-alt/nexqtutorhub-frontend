@@ -15,28 +15,28 @@ export const metadata: Metadata = {
 };
 
 const HOW_IT_WORKS = [
-  "Tell us what you need — class, subjects, home or online",
-  "Verified tutors near you apply with a short note",
-  "Compare their profiles and accept the one you like",
-  "Your phone number is shared only with that tutor",
+  "बताएं क्या चाहिए — क्लास, सब्जेक्ट, घर पर या ऑनलाइन",
+  "आपके पास के Verified ट्यूटर एक छोटे मैसेज के साथ apply करते हैं",
+  "उनकी प्रोफ़ाइल देखें और जो पसंद आए उसे चुनें",
+  "आपका फ़ोन नंबर सिर्फ़ उसी ट्यूटर को दिखेगा",
 ];
 
 /** Open to guests (they sign up on submit) and students; tutors and admins are told it isn't for them. */
 export default function RequestTutorPage() {
   return (
     <ProtectedRoute allow={[UserRole.STUDENT]} allowGuests>
-      <section className="bg-surface py-10 sm:py-20">
+      <section lang="hi" className="bg-surface py-10 sm:py-20">
         <Container className="grid gap-10 lg:grid-cols-2 lg:items-start lg:gap-16">
           <div>
             <span className="inline-block rounded-full bg-brand-secondary-light px-4 py-1.5 text-xs font-semibold text-brand-primary">
-              For students & parents
+              स्टूडेंट्स और पेरेंट्स के लिए
             </span>
             <h1 className="mt-4 font-display text-3xl font-bold leading-tight text-brand-primary sm:text-4xl lg:text-5xl">
-              Find the right <span className="text-brand-secondary">tutor</span>
+              अपने लिए सही <span className="text-brand-secondary">ट्यूटर</span> खोजें
             </h1>
             <p className="mt-4 max-w-lg leading-relaxed text-text-secondary">
-              Post your requirement once and let verified tutors come to you —
-              no endless scrolling or cold calls.
+              एक बार अपनी ज़रूरत बताएं और Verified ट्यूटर खुद आप तक आएंगे — न लंबी लिस्ट देखनी, न अनजान
+              कॉल।
             </p>
             <ol className="mt-8 hidden gap-3 sm:grid">
               {HOW_IT_WORKS.map((step, index) => (

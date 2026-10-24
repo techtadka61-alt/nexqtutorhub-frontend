@@ -54,3 +54,10 @@ export const SUPPORT_EMAIL = "nexqira.online@gmail.com";
 export const SUPPORT_PHONE = "+91 93697 76898";
 /** tel: form of SUPPORT_PHONE. */
 export const SUPPORT_PHONE_HREF = "+919369776898";
+/** The support number also takes WhatsApp; the floating button opens a chat with this message already typed. */
+export const SUPPORT_WHATSAPP_URL = `https://wa.me/${SUPPORT_PHONE_HREF.slice(1)}?text=${encodeURIComponent(
+  "Mujhe Class __ ke liye tutor chahiye",
+)}`;
+
+/** Udyam (MSME) registration, shown in the Highlights section. */
+export const UDYAM_NUMBER = "UDYAM-UP-72-0040416";

@@ -93,7 +93,7 @@ export default function ContactPage() {
         </Container>
       </section>
       <HighlightsSection />
-      <FaqSection items={GENERAL_FAQS} subtitle="Quick answers — you may not need to write to us at all." />
+      <FaqSection items={GENERAL_FAQS} subtitle="जल्दी जवाब — हो सकता है आपको हमें लिखने की ज़रूरत ही न पड़े।" />
     </>
   );
 }

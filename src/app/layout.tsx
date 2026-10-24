@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { bodyFont, displayFont, scriptFont } from "@/lib/fonts";
+import { bodyFont, devanagariFont, displayFont, scriptFont } from "@/lib/fonts";
 import { AuthProvider } from "@/context/auth-context";
 import { Toaster } from "@/components/ui/Toast";
 import {
@@ -52,7 +52,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="en-IN"
-      className={`${bodyFont.variable} ${displayFont.variable} ${scriptFont.variable} h-full antialiased`}
+      className={`${bodyFont.variable} ${displayFont.variable} ${scriptFont.variable} ${devanagariFont.variable} h-full antialiased`}
     >
       <body className="flex min-h-full flex-col bg-bg text-text-primary">
         <script type="application/ld+json" dangerouslySetInnerHTML={jsonLdScript(organizationJsonLd())} />

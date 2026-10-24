@@ -40,7 +40,14 @@ const EMPTY: RequestDraft = {
   mobileNumber: "",
 };
 
-const STEPS = ["What to learn", "Where & how", "Final details"] as const;
+const STEPS = ["क्या पढ़ना है", "कहाँ और कैसे", "आखिरी जानकारी"] as const;
+
+/** Hindi labels for the form; the shared TUITION_MODE_OPTIONS stay English for the account pages. */
+const MODE_LABEL: Record<(typeof TUITION_MODE_OPTIONS)[number]["value"], string> = {
+  home: "घर पर ट्यूशन",
+  online: "ऑनलाइन ट्यूशन",
+  both: "दोनों (घर पर और ऑनलाइन)",
+};
 
 type Access = "loading" | "guest" | "student" | "other";
 
@@ -63,23 +70,23 @@ function withProfileDefaults(draft: RequestDraft, profile: StudentProfile | null
 
 function stepError(step: number, form: RequestDraft): string | null {
   if (step === 0) {
-    if (!form.studentClass) return "Please choose the class.";
-    if (!form.subjects.length) return "Please pick at least one subject.";
-    if (!form.board) return "Please choose the board.";
+    if (!form.studentClass) return "क्लास चुनें।";
+    if (!form.subjects.length) return "कम से कम एक सब्जेक्ट चुनें।";
+    if (!form.board) return "बोर्ड चुनें।";
   }
   if (step === 1) {
-    if (!form.tuitionMode) return "Please choose how you'd like to study.";
+    if (!form.tuitionMode) return "बताएं कि आप कैसे पढ़ना चाहते हैं।";
     if (form.tuitionMode !== "online" && (form.city ?? "").trim().length < 2)
-      return "Please enter your city so nearby tutors can find you.";
+      return "अपना शहर लिखें, ताकि पास के ट्यूटर आपको ढूंढ सकें।";
     if (form.tuitionMode !== "online" && (form.area ?? "").trim().length < 2)
-      return "Please enter your colony / area.";
+      return "अपना एरिया / कॉलोनी लिखें।";
     if (form.tuitionMode !== "online" && !form.location)
-      return `Please set where you need the tutor so tutors within ${NEARBY_RADIUS_KM} km can see your request.`;
+      return `मैप पर बताएं कि ट्यूटर कहाँ चाहिए, ताकि ${NEARBY_RADIUS_KM} किमी के अंदर के ट्यूटर आपकी request देख सकें।`;
   }
   if (step === 2) {
     if (!isValidMobile(form.mobileNumber)) return VALIDATION_MESSAGES.mobile;
-    if (!form.budget || !(Number(form.budget) > 0)) return "Please enter your monthly budget.";
-    if (!form.schedule?.trim()) return "Please choose your preferred days and time.";
+    if (!form.budget || !(Number(form.budget) > 0)) return "अपना महीने का बजट लिखें।";
+    if (!form.schedule?.trim()) return "पढ़ाई के दिन और टाइम चुनें।";
     const timingProblem = timingError(form.schedule ?? "");
     if (timingProblem) return timingProblem;
   }
@@ -174,7 +181,7 @@ export function RequestTutorForm() {
     if (step < STEPS.length - 1) return setStep(step + 1);
 
     if (access === "loading") return;
-    if (access === "other") return setError("You're signed in with a tutor account. Please use a student account to post a request.");
+    if (access === "other") return setError("आप ट्यूटर अकाउंट से लॉग-इन हैं। Request डालने के लिए स्टूडेंट अकाउंट इस्तेमाल करें।");
     if (access === "guest") {
       requestDraft.save(form);
       returnTo.set(PAGE_PATH);
@@ -187,10 +194,10 @@ export function RequestTutorForm() {
   if (needsAccount) return <AccountPrompt onBack={() => setNeedsAccount(false)} />;
 
   return (
-    <form onSubmit={handleNext} className="flex flex-col gap-6" noValidate>
+    <form lang="hi" onSubmit={handleNext} className="flex flex-col gap-6" noValidate>
       <div>
-        <h2 className="font-display text-2xl font-bold text-brand-primary">Tell us what you need</h2>
-        <p className="mt-1 text-sm text-text-secondary">Takes about a minute. Verified tutors will apply to you.</p>
+        <h2 className="font-display text-2xl font-bold text-brand-primary">बताएं आपको क्या चाहिए</h2>
+        <p className="mt-1 text-sm text-text-secondary">बस एक मिनट लगेगा। Verified ट्यूटर आपको apply करेंगे।</p>
       </div>
 
       <StepIndicator step={step} />
@@ -205,29 +212,29 @@ export function RequestTutorForm() {
         {step === 0 && (
           <>
             <Select
-              label="Class"
+              label="क्लास"
               required
-              placeholder="Choose class"
+              placeholder="क्लास चुनें (Nursery – Class 12)"
               options={catalog.classes.map((value) => ({ value, label: value }))}
               value={form.studentClass}
               onChange={(e) => update("studentClass", e.target.value)}
             />
             <Select
-              label="Board"
+              label="बोर्ड"
               required
-              placeholder="Choose board"
+              placeholder="बोर्ड चुनें"
               options={catalog.boards.map((value) => ({ value, label: value }))}
               value={form.board}
               onChange={(e) => update("board", e.target.value)}
             />
             <CreatableMultiSelect
-              label="Subjects"
+              label="सब्जेक्ट"
               required
-              placeholder="Search or type a subject"
+              placeholder="सब्जेक्ट खोजें या लिखें"
               options={catalog.subjects}
               value={form.subjects}
               onChange={(value) => update("subjects", value)}
-              hint="Pick from the list, or type a subject that isn't listed and press Enter."
+              hint="लिस्ट से चुनें, या जो सब्जेक्ट लिस्ट में नहीं है उसे लिखकर Enter दबाएं।"
             />
           </>
         )}
@@ -236,7 +243,7 @@ export function RequestTutorForm() {
           <>
             <fieldset>
               <FieldLabel as="legend" required>
-                How would you like to study?
+                आप कैसे पढ़ना चाहते हैं?
               </FieldLabel>
               <div className="mt-2 grid gap-3 sm:grid-cols-3">
                 {TUITION_MODE_OPTIONS.map((option) => {
@@ -259,7 +266,7 @@ export function RequestTutorForm() {
                         onChange={() => update("tuitionMode", option.value)}
                         className="h-4 w-4 accent-brand-secondary"
                       />
-                      {option.label}
+                      {MODE_LABEL[option.value]}
                     </label>
                   );
                 })}
@@ -267,41 +274,41 @@ export function RequestTutorForm() {
             </fieldset>
             <div className="grid gap-5 sm:grid-cols-2">
               <Input
-                label="City"
+                label="शहर"
                 required={form.tuitionMode !== "online"}
                 optional={form.tuitionMode === "online"}
-                placeholder="e.g. Indore"
+                placeholder="जैसे रॉबर्ट्सगंज, ओबरा, रेणुकूट"
                 autoComplete="address-level2"
                 value={form.city}
                 onChange={(e) => update("city", e.target.value)}
               />
               <Input
-                label="Colony / Area"
+                label="आपका एरिया / कॉलोनी"
                 required={form.tuitionMode !== "online"}
                 optional={form.tuitionMode === "online"}
-                placeholder="e.g. Vijay Nagar"
+                placeholder="मोहल्ला या कॉलोनी का नाम"
                 value={form.area}
                 onChange={(e) => update("area", e.target.value)}
               />
             </div>
             {form.tuitionMode !== "online" && (
               <Input
-                label="Full address"
+                label="पूरा पता"
                 optional
-                placeholder="House no., street, landmark"
+                placeholder="मकान नंबर, गली, लैंडमार्क"
                 autoComplete="street-address"
-                hint="Only shared with the tutor you accept."
+                hint="सिर्फ़ उसी ट्यूटर को दिखेगा जिसे आप चुनेंगे।"
                 value={form.fullAddress}
                 onChange={(e) => update("fullAddress", e.target.value)}
               />
             )}
             {form.tuitionMode !== "online" && (
               <LocationPicker
-                title="Where do you need the tutor?"
+                title="ट्यूटर कहाँ चाहिए?"
                 required
                 value={form.location}
                 onChange={(location) => update("location", location)}
-                description={`Only tutors within ${NEARBY_RADIUS_KM} km of this location will see your request. Never shown to them.`}
+                description={`सिर्फ़ इस जगह से ${NEARBY_RADIUS_KM} किमी के अंदर के ट्यूटर आपकी request देखेंगे। यह लोकेशन उन्हें नहीं दिखाई जाती।`}
               />
             )}
           </>
@@ -310,9 +317,9 @@ export function RequestTutorForm() {
         {step === 2 && (
           <>
             <Input
-              label="Monthly budget in ₹"
+              label="महीने का बजट (₹)"
               required
-              placeholder="e.g. 3000"
+              placeholder="जैसे 3000"
               type="number"
               inputMode="numeric"
               min={0}
@@ -321,25 +328,25 @@ export function RequestTutorForm() {
               onChange={(e) => update("budget", e.target.value)}
             />
             <TimingPicker
-              label="Preferred timing"
+              label="पढ़ाई का टाइम"
               required
               value={form.schedule ?? ""}
               onChange={(value) => update("schedule", value)}
             />
             <Textarea
-              label="Anything else?"
+              label="और कुछ बताना है?"
               optional
-              placeholder="e.g. Need help preparing for board exams, prefer a female tutor…"
+              placeholder="जैसे बोर्ड एग्ज़ाम की तैयारी चाहिए, लेडी ट्यूटर चाहिए…"
               rows={3}
               maxLength={500}
               value={form.notes}
               onChange={(e) => update("notes", e.target.value)}
             />
             <MobileInput
-              label="Mobile number"
+              label="मोबाइल नंबर"
               required
-              placeholder="10-digit mobile number"
-              hint="Only shared with the tutor you accept."
+              placeholder="10 अंकों का मोबाइल नंबर"
+              hint="सिर्फ़ उसी ट्यूटर को दिखेगा जिसे आप चुनेंगे।"
               value={form.mobileNumber}
               onValueChange={(value) => update("mobileNumber", value)}
             />
@@ -352,11 +359,11 @@ export function RequestTutorForm() {
                 setError(null);
                 setStep(step - 1);
               }}>
-              Back
+              वापस
             </Button>
           )}
           <Button type="submit" size="lg" pill={false} isLoading={isSubmitting} className="sm:px-10">
-            {step < STEPS.length - 1 ? "Continue" : "Post my requirement"}
+            {step < STEPS.length - 1 ? "आगे बढ़ें" : "मेरी requirement भेजें"}
           </Button>
         </div>
       </fieldset>
@@ -364,20 +371,20 @@ export function RequestTutorForm() {
       <div className="flex flex-col gap-2 border-t border-border pt-5 text-center text-sm text-text-secondary">
         {access === "guest" && (
           <p>
-            Already have an account?{" "}
+            पहले से अकाउंट है?{" "}
             <Link
               href={`/login?next=${encodeURIComponent(PAGE_PATH)}`}
               className="font-semibold text-brand-secondary hover:text-brand-primary"
             >
-              Sign in
+              लॉग-इन
             </Link>{" "}
-            first, or keep going — we&apos;ll save your answers.
+            करें, या आगे बढ़ें — आपके जवाब सेव रहेंगे।
           </p>
         )}
         <p>
-          Prefer to look yourself?{" "}
+          खुद देखना चाहते हैं?{" "}
           <Link href="/find-tutors" className="font-semibold text-brand-secondary hover:text-brand-primary">
-            Browse tutors
+            ट्यूटर देखें
           </Link>
         </p>
       </div>
@@ -387,7 +394,7 @@ export function RequestTutorForm() {
 
 function StepIndicator({ step }: { step: number }) {
   return (
-    <ol className="grid grid-cols-3 gap-2" aria-label="Progress">
+    <ol className="grid grid-cols-3 gap-2" aria-label="प्रोग्रेस">
       {STEPS.map((label, index) => (
         <li key={label} className="flex flex-col gap-1.5" aria-current={index === step ? "step" : undefined}>
           <span className={cn("h-1.5 rounded-full", index <= step ? "bg-brand-secondary" : "bg-border")} />
@@ -411,18 +418,18 @@ function AccountPrompt({ onBack }: { onBack: () => void }) {
           </svg>
         </span>
         <div>
-          <h2 className="font-display text-2xl font-bold text-brand-primary">Almost done!</h2>
+          <h2 className="font-display text-2xl font-bold text-brand-primary">बस थोड़ा और!</h2>
           <p className="mt-1.5 text-sm leading-relaxed text-text-secondary">
-            Create a free student account so tutors can reach you.
+            फ्री स्टूडेंट अकाउंट बनाएं, ताकि ट्यूटर आप तक पहुँच सकें।
           </p>
         </div>
       </div>
 
       <ul className="flex flex-col gap-2 rounded-xl border border-border bg-bg p-4 text-sm text-text-secondary">
         {[
-          "Your answers are saved on this device",
-          "We post your requirement as soon as you sign in",
-          "Your phone number stays private until you accept a tutor",
+          "आपके जवाब इसी फ़ोन/कंप्यूटर पर सेव हैं",
+          "लॉग-इन करते ही हम आपकी requirement पोस्ट कर देंगे",
+          "ट्यूटर चुनने तक आपका फ़ोन नंबर प्राइवेट रहेगा",
         ].map((point) => (
           <li key={point} className="flex items-start gap-2">
             <svg className="mt-0.5 shrink-0 text-success" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" aria-hidden>
@@ -435,10 +442,10 @@ function AccountPrompt({ onBack }: { onBack: () => void }) {
 
       <div className="grid gap-3 sm:grid-cols-2">
         <Button href="/signup/student" pill={false} fullWidth className="whitespace-nowrap">
-          Create free account
+          फ्री अकाउंट बनाएं
         </Button>
         <Button href={`/login?next=${encodeURIComponent(PAGE_PATH)}`} pill={false} variant="outline" fullWidth className="whitespace-nowrap">
-          Sign in instead
+          लॉग-इन करें
         </Button>
       </div>
 
@@ -447,7 +454,7 @@ function AccountPrompt({ onBack }: { onBack: () => void }) {
         onClick={onBack}
         className="w-fit text-sm font-semibold text-brand-secondary hover:text-brand-primary"
       >
-        ← Edit my answers
+        ← जवाब बदलें
       </button>
     </div>
   );
@@ -462,18 +469,19 @@ function PostedNotice({ request }: { request: TuitionRequest }) {
         </svg>
       </span>
       <div>
-        <h2 className="font-display text-2xl font-bold text-brand-primary">Your requirement is live</h2>
+        <h2 className="font-display text-2xl font-bold text-brand-primary">आपकी requirement लाइव है</h2>
         <p className="mt-2 text-sm leading-relaxed text-text-secondary">
-          Verified tutors can now see your request for <strong>{request.studentClass}</strong> ({request.subjects.join(", ")})
-          and apply. We&apos;ll email you as they do. Your phone number stays private until you accept a tutor.
+          Verified ट्यूटर अब <strong>{request.studentClass}</strong> ({request.subjects.join(", ")}) के लिए आपकी request
+          देख सकते हैं और apply कर सकते हैं। जैसे-जैसे वे apply करेंगे, हम आपको ईमेल करेंगे। ट्यूटर चुनने तक आपका
+          फ़ोन नंबर प्राइवेट रहेगा।
         </p>
       </div>
       <div className="flex flex-col gap-3 sm:flex-row">
         <Button href={`/my-requests?id=${request._id}`} size="lg" pill={false}>
-          See tutor responses
+          ट्यूटर्स के जवाब देखें
         </Button>
         <Button href="/find-tutors" size="lg" pill={false} variant="outline">
-          Browse matching tutors
+          मैच होने वाले ट्यूटर देखें
         </Button>
       </div>
     </div>

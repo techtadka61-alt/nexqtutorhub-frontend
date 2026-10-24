@@ -1,4 +1,4 @@
-import { Caveat, Plus_Jakarta_Sans, Sora } from "next/font/google";
+import { Caveat, Noto_Sans_Devanagari, Plus_Jakarta_Sans, Sora } from "next/font/google";
 
 export const bodyFont = Plus_Jakarta_Sans({
   variable: "--font-plus-jakarta",
@@ -11,6 +11,17 @@ export const displayFont = Sora({
   subsets: ["latin"],
   display: "swap",
   weight: ["600", "700", "800"],
+});
+
+/**
+ * Hindi copy (home page, FAQ, the tutor request form). Neither Latin font has Devanagari glyphs, so this one sits
+ * second in the body and display stacks: Latin text keeps its font, Devanagari falls through to this. Variable, so
+ * one file covers every weight.
+ */
+export const devanagariFont = Noto_Sans_Devanagari({
+  variable: "--font-devanagari",
+  subsets: ["devanagari"],
+  display: "swap",
 });
 
 /**

@@ -62,8 +62,8 @@
   --color-warning-display: var(--color-warning-display);
   --color-success-strong: var(--color-success-strong);
 
-  --font-sans: var(--font-plus-jakarta);
-  --font-display: var(--font-clash);
+  --font-sans: var(--font-plus-jakarta), var(--font-devanagari);
+  --font-display: var(--font-clash), var(--font-devanagari);
   --font-script: var(--font-caveat);
 
   --radius-xl: 1rem;

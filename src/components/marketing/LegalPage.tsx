@@ -78,7 +78,7 @@ export function LegalPage({
           </article>
         </Container>
       </section>
-      <FaqSection items={GENERAL_FAQS} subtitle="Common questions about using NexTutorHub." />
+      <FaqSection items={GENERAL_FAQS} subtitle="NexTutorHub इस्तेमाल करने से जुड़े आम सवाल।" />
     </>
   );
 }
