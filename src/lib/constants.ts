@@ -59,5 +59,9 @@ export const SUPPORT_WHATSAPP_URL = `https://wa.me/${SUPPORT_PHONE_HREF.slice(1)
   "Mujhe Class __ ke liye tutor chahiye",
 )}`;
 
+/** Official social profiles: linked in the top bar and declared as `sameAs` in the structured data. */
+export const INSTAGRAM_URL = "https://www.instagram.com/_nexqira_/";
+export const FACEBOOK_URL = "https://www.facebook.com/profile.php?id=61579777559641";
+
 /** Udyam (MSME) registration, shown in the Highlights section. */
 export const UDYAM_NUMBER = "UDYAM-UP-72-0040416";

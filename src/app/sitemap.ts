@@ -1,28 +1,29 @@
 import type { MetadataRoute } from "next";
 import { SITE_URL, SONBHADRA_LOCALITIES, localityPath } from "@/lib/seo";
 
+/**
+ * When the public page content last changed in a way worth re-crawling. Google only trusts `lastmod` if it is accurate
+ * (a build-time `new Date()` on every URL teaches it to ignore the field), so bump this by hand when page copy changes.
+ * `priority` and `changefreq` are left out on purpose: Google ignores both.
+ */
+const CONTENT_LAST_MODIFIED = "2026-11-02";
+
 /** sitemap.xml: every public, indexable page. Submit SITE_URL/sitemap.xml in Google Search Console. */
 export default function sitemap(): MetadataRoute.Sitemap {
-  const lastModified = new Date();
-  const page = (path: string, priority: number, changeFrequency: MetadataRoute.Sitemap[number]["changeFrequency"]) => ({
-    url: `${SITE_URL}${path}`,
-    lastModified,
-    changeFrequency,
-    priority,
-  });
-
-  return [
-    page("/", 1, "weekly"),
-    page("/home-tuition", 0.95, "weekly"),
-    ...SONBHADRA_LOCALITIES.map((l) => page(localityPath(l.slug), 0.9, "weekly")),
-    page("/request-tutor", 0.85, "monthly"),
-    page("/for-tutors", 0.8, "monthly"),
-    page("/how-it-works", 0.7, "monthly"),
-    page("/about", 0.6, "monthly"),
-    page("/contact", 0.6, "monthly"),
-    page("/signup/student", 0.5, "yearly"),
-    page("/signup/tutor", 0.5, "yearly"),
-    page("/privacy", 0.2, "yearly"),
-    page("/terms", 0.2, "yearly"),
+  const paths = [
+    "/",
+    "/home-tuition",
+    ...SONBHADRA_LOCALITIES.map((l) => localityPath(l.slug)),
+    "/request-tutor",
+    "/for-tutors",
+    "/how-it-works",
+    "/about",
+    "/contact",
+    "/signup/student",
+    "/signup/tutor",
+    "/privacy",
+    "/terms",
   ];
+
+  return paths.map((path) => ({ url: `${SITE_URL}${path}`, lastModified: CONTENT_LAST_MODIFIED }));
 }
